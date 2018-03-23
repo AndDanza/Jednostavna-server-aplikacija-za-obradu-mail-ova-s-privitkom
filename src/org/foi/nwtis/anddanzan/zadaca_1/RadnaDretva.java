@@ -15,16 +15,17 @@ import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
  * @author Andrea
  */
 class RadnaDretva extends Thread {
-
     private Socket socket;
     private String nazivDretve;
     private Konfiguracija konf;
+    
+    private long start;
 
     /**
      *
-     * @param socket
-     * @param nazivDretve
-     * @param konf
+     * @param socket Socket preko kojeg komuniciraju server i korisnik
+     * @param nazivDretve ime dretve "anddanzan-i", (i broj od 0 do 63)
+     * @param konf podac učitani iz konfiguracije
      */
     public RadnaDretva(Socket socket, String nazivDretve, Konfiguracija konf) {
         super(nazivDretve);
@@ -47,6 +48,12 @@ class RadnaDretva extends Thread {
     @Override
     public void run() {
         try {
+            try {
+                Thread.sleep(30000);    //radi testiranja
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
             InputStream inputStream = this.socket.getInputStream();
             OutputStream outputStream = this.socket.getOutputStream();
 
@@ -72,7 +79,7 @@ class RadnaDretva extends Thread {
             String odgovorServera = "";
             if (komandaValjana) {
                 odgovorServera = izvrsiKomanduAdmina(komanda);
-                odgovorServera = izvrsiKomanduKlijenta(komanda);
+                //odgovorServera = izvrsiKomanduKlijenta(komanda);
             }
             else {
                 odgovorServera = porukaPogreske("01");
@@ -81,13 +88,14 @@ class RadnaDretva extends Thread {
             outputStream.write(odgovorServera.getBytes());
             outputStream.flush();   //čisti output stream
             socket.shutdownOutput();
-
         } catch (IOException ex) {
             Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        //TODO smanji broj aktivnih radnih dretvi kod servera sustava
-        ServerSustava.brojacDretvi--;   //TODO zašto ne radi prvi zahtjev   
+        
+        long stop = System.currentTimeMillis();
+        long vrijemeIzvrsavanja = stop - this.start;
+        long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
+        ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi+vrijemeIzvrsavanja);
     }
 
     /**
@@ -95,6 +103,7 @@ class RadnaDretva extends Thread {
      */
     @Override
     public synchronized void start() {
+        start = System.currentTimeMillis();
         super.start(); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -247,7 +256,7 @@ class RadnaDretva extends Thread {
 
     private String izvrsiKomanduKlijenta(String komanda) {
         //TODO case-evi za komande i poziv metoda koje odrađuju
-        
+
         /*
         potvrdan odgovor
         ----------------

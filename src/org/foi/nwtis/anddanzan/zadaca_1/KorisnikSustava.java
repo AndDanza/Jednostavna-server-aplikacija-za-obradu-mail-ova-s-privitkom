@@ -23,7 +23,7 @@ public class KorisnikSustava {
         korisnik.args = args;
         
         
-        if(korisnik.administrator){
+        if(true){
             AdministratorSustava admin = new AdministratorSustava();
             admin.preuzmiKontrolu();    //stvaranje socketa i povezivanje sa serverom
         }

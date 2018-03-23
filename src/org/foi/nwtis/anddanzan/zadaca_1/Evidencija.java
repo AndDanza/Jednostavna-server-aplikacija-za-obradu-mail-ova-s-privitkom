@@ -10,12 +10,12 @@ import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
  */
 public class Evidencija implements Serializable {
 
-    private long ukupanBrojZahtjeva = 0;
-    private long brojNeispravnihZahtjeva = 0;
-    private long brojNedozvoljenihZahtjeva = 0;
-    private long brojUspjesnihZahtjeva = 0;
-    private long brojPrekinutihZahtjeva = 0;
-    private long ukupnoVrijemeRadaRadnihDretvi = 0;
+    private long ukupanBrojZahtjeva = 0;    //svi
+    private long brojNeispravnihZahtjeva = 0;   //kriva sintaksa
+    private long brojNedozvoljenihZahtjeva = 0; //nema pristup
+    private long brojUspjesnihZahtjeva = 0; //izvršeni zahtjevi
+    private long brojPrekinutihZahtjeva = 0;    //odbijeni jer nema dretvi
+    private long ukupnoVrijemeRadaRadnihDretvi = 0; //rad svih dretvi
     private long brojObavljenihSerijalizacija = 0;
 
     public Evidencija(Konfiguracija evidencijaRada) {
@@ -32,6 +32,8 @@ public class Evidencija implements Serializable {
     }
     
     public Properties vratiPropertiesEvidencije(){
+        setUkupanBrojZahtjeva(brojNedozvoljenihZahtjeva+brojNeispravnihZahtjeva+brojPrekinutihZahtjeva+brojUspjesnihZahtjeva);
+        
         Properties prop = new Properties();
         prop.setProperty("ukupan.broj.zahtjeva", String.valueOf(this.ukupanBrojZahtjeva));
         prop.setProperty("broj.neispravnih.zahtjeva", String.valueOf(this.brojNeispravnihZahtjeva));
@@ -67,7 +69,7 @@ public class Evidencija implements Serializable {
         this.brojNedozvoljenihZahtjeva = brojNedozvoljenihZahtjeva;
     }
 
-    public long getBrojUpsjesnihZahtjeva() {
+    public long getBrojUspjesnihZahtjeva() {
         return brojUspjesnihZahtjeva;
     }
 
