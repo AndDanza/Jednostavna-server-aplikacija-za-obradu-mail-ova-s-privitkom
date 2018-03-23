@@ -16,7 +16,14 @@ import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
  */
 public class ServerSustava {
 
+    /**
+     * Objekt evidencije za pohranu pomoću serijalizatora, static kako bi sve dretve mogle pristupat podacima
+     */
     public static Evidencija evidencija;
+
+    /**
+     * Broj dretvi u stustavu trenutno.
+     */
     public static int brojacDretvi = 0;
 
     /**
@@ -33,8 +40,7 @@ public class ServerSustava {
             ServerSustava serverSustava = new ServerSustava();
             serverSustava.pokreniPosluzitelj(konf);
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-            return; //server prekida s radmo u slučaju greške
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -42,16 +48,23 @@ public class ServerSustava {
         int port = Integer.parseInt(konf.dajPostavku("port"));
         int maxBrZahtjevaCekanje = Integer.parseInt(konf.dajPostavku("max.broj.zahtjeva.cekanje"));
         int maxBrRadnihDretvi = Integer.parseInt(konf.dajPostavku("max.broj.radnih.dretvi"));
-//        int intervalZaSerijalizaciju = Integer.parseInt(konf.dajPostavku("interval.za.serijalizaciju"));
-//        String datEvidencije = konf.dajPostavku("datoteka.evidencije.rada");
+        String datotekaEvidencije = konf.dajPostavku("datoteka.evidencije.rada");
 
         boolean radiDok = true;
+
+        try {
+            Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
+            ServerSustava.evidencija = new Evidencija(evidencijaRada);
+            
+        } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
+            System.out.println(ex.getMessage());
+            ServerSustava.evidencija = new Evidencija();
+        }
 
         //TODO Provjeri i ako postoji učitaj evidenciju rada (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         //TODO instancirat klasu Evidencija i učitat podatke iz evidencije u objekt
         //this.evidencija = pripremiEvidenciju(konf)
         //TODO instanciranje objekta za IOT uređaj - potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
-        
         SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
         serijalizatorEvid.start();
         try {
@@ -61,14 +74,15 @@ public class ServerSustava {
                 Socket socket = serverSocket.accept();
 
                 try {
-                    Thread.sleep(60000);    //radi testiranja
+                    Thread.sleep(6000);    //radi testiranja
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
                 System.out.println("Korisnik se spojio!");
-                if (brojacDretvi >= 64) 
+                if (brojacDretvi >= 64) {
                     brojacDretvi = 0;
+                }
 
                 if (brojacDretvi == maxBrRadnihDretvi) {
                     //TODO Ukoliko nema raspoložive radne dretve korisniku se vraća odgovor ERROR 01
@@ -78,6 +92,8 @@ public class ServerSustava {
                 else {
                     RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + brojacDretvi, konf);
                     ServerSustava.brojacDretvi++;
+                    long brDretvi = ServerSustava.evidencija.getUkupanBrojZahtjeva();
+                    ServerSustava.evidencija.setUkupanBrojZahtjeva(++brDretvi);
                     radnaDretva.start();
                     //TODO Ažuriraj evidenciju rada
                 }

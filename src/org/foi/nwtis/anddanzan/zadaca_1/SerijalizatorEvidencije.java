@@ -5,9 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
+import org.nwtis.anddanzan.konfiguracije.KonfiguracijaApstraktna;
+import org.nwtis.anddanzan.konfiguracije.NeispravnaKonfiguracija;
+import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
  *
@@ -37,25 +42,32 @@ class SerijalizatorEvidencije extends Thread{
         
         while (radiDok) {            
             long pocetak = System.currentTimeMillis();
-            
-            System.out.println("Dretva " + this.nazivDretve + " krenula u: " + pocetak);
+            String timeString = new SimpleDateFormat("HH:mm:ss:SSS").format(pocetak);
+            System.out.println("Dretva " + this.nazivDretve + " krenula u: " + timeString);
             
             File datEvidencije = new File(nazivDatEvidencije);
             ObjectOutputStream objOutputStream = null;
             try {
                 objOutputStream = new ObjectOutputStream(new FileOutputStream(datEvidencije));
-                //TODO pozvati objekt evidencija rada iz ServerSustava Evidencija zapisEvidencije = ServerSustava.evidencija;
+                //TODO pozvati objekt evidencijaProp rada iz ServerSustava 
+                Evidencija evidencijaZaPohranu = ServerSustava.evidencija;
+                Properties evidencijaProp = evidencijaZaPohranu.vratiPropertiesEvidencije();
                 //TODO serijalizirat evidenciju u datoteku
+                Konfiguracija pohranaEvidencije = KonfiguracijaApstraktna.kreirajKonfiguraciju(nazivDatEvidencije);
+                pohranaEvidencije.kopirajKonfiguraciju(evidencijaProp);
+                pohranaEvidencije.spremiKonfiguraciju();
                 //TODO ažuriraj evidenciju brojObavljenihSerijalizacija
+                long brSerijalizacija = ServerSustava.evidencija.getBrojObavljenihSerijalizacija();
+                ServerSustava.evidencija.setBrojObavljenihSerijalizacija(++brSerijalizacija);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(SerijalizatorEvidencije.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(SerijalizatorEvidencije.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex.getMessage());
+            } catch (IOException | NemaKonfiguracije | NeispravnaKonfiguracija ex) {
+                System.out.println(ex.getMessage());
             } finally{
                 try {
                     objOutputStream.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(SerijalizatorEvidencije.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(ex.getMessage());
                 }
             }
             
