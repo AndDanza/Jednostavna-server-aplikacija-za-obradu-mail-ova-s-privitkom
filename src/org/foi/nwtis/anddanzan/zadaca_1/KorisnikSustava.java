@@ -101,15 +101,9 @@ public class KorisnikSustava {
                 
                 stringBuffer.append((char) znak);
             }   
+            socket.shutdownInput();
         } catch (IOException ex) {
             Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        finally {
-            try {
-                inputStream.close();
-            } catch (IOException ex) {
-                Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         
         return stringBuffer.toString();
