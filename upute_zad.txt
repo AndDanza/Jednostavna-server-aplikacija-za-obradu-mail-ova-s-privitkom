@@ -1,0 +1,14 @@
+Pokretanje servera na poèetku, on otvara port.
+Admin i user šalju komande na server.
+Evidencija - posljednje stanje servera
+SerijalizatorEvidencije - beskonaèna petlja udretvi koja pohranjuje stanje sustava
+
+Admin
+	-pauziraj, pokreni i gasi server
+
+User
+	-taskovi serveru
+	-odbijanje ako ima više zahtjeva od dretvi
+	-sljedeæi dobiveni zahtjev preuzima slobodna dretva
+
+Clean & Build prije predaje
