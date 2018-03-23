@@ -1,6 +1,7 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -106,16 +107,37 @@ public class ServerSustava {
         }
     }
 
-    private static void posaljiOdgovor(Socket socket, String string) {
-        OutputStream outputStream = null;
+    public static void posaljiOdgovor(Socket socket, String poruka) {
         try {
-            outputStream = socket.getOutputStream();
-            outputStream.write(string.getBytes());
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(poruka.getBytes());
             outputStream.flush();
             socket.shutdownOutput();
         } catch (IOException ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
 
+    public static String zaprimiKomandu(Socket socket) {
+        InputStream inputStream = null;
+        StringBuffer stringBuffer = null;
+        try {
+            inputStream = socket.getInputStream();
+            stringBuffer = new StringBuffer();
+            while (true) {
+                int znak = inputStream.read();
+
+                if (znak == -1) {
+                    break;
+                }
+
+                stringBuffer.append((char) znak);
+            }
+            socket.shutdownInput();
+        } catch (IOException ex) {
+            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return stringBuffer.toString();
     }
 }

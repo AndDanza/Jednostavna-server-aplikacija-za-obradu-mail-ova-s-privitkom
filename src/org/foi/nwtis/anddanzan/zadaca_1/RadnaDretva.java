@@ -54,22 +54,9 @@ class RadnaDretva extends Thread {
                 Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            InputStream inputStream = this.socket.getInputStream();
             OutputStream outputStream = this.socket.getOutputStream();
-
-            StringBuffer stringBuffer = new StringBuffer();
-
-            while (true) {
-                int znak = inputStream.read();
-
-                if (znak == -1) {
-                    break;
-                }
-
-                stringBuffer.append((char) znak);
-            }
-
-            String komanda = stringBuffer.toString();
+            
+            String komanda = ServerSustava.zaprimiKomandu(socket);
             System.out.println("Dretva " + this.nazivDretve + " Komanda: " + komanda);
 
             Boolean komandaValjana = provjeriKomandu(komanda);   //TODO provjeri ispravnost primljene komande
@@ -85,11 +72,7 @@ class RadnaDretva extends Thread {
                 odgovorServera = porukaPogreske("01");
             }
             
-            odgovorServera = "Zadatak izvrsen";
-
-            outputStream.write(odgovorServera.getBytes());
-            outputStream.flush();   //čisti output stream
-            socket.shutdownOutput();
+            ServerSustava.posaljiOdgovor(socket, "Zadatak izvrsen");
         } catch (IOException ex) {
             Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
         }
