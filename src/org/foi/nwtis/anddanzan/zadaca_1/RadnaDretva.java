@@ -84,6 +84,8 @@ class RadnaDretva extends Thread {
             else {
                 odgovorServera = porukaPogreske("01");
             }
+            
+            odgovorServera = "Zadatak izvrsen";
 
             outputStream.write(odgovorServera.getBytes());
             outputStream.flush();   //čisti output stream

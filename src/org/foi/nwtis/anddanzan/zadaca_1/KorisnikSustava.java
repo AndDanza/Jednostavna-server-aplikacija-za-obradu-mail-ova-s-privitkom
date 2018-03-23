@@ -1,15 +1,26 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  *
  * @author grupa_2
  */
 public class KorisnikSustava {
+
     String korisnik;
     String lozinka;
     String adresa;
     int port;
-    
+    String komanda;
+
     String[] args;
     boolean administrator = false;
 
@@ -21,52 +32,86 @@ public class KorisnikSustava {
         KorisnikSustava korisnik = new KorisnikSustava();
         korisnik.preuzmiPostavke(args); //TODO kroz arg prosljeđuje se komanda, na temelju komande odredi koji je korisnik (admin ili klijent)
         korisnik.args = args;
-        
-        
-        if(true){
+
+        if (korisnik.administrator) {
             AdministratorSustava admin = new AdministratorSustava();
+            admin.adresa = korisnik.adresa;
+            admin.port = korisnik.port;
+            admin.komanda = korisnik.komanda;
             admin.preuzmiKontrolu();    //stvaranje socketa i povezivanje sa serverom
         }
-        else{
+        else {
             //TODO kreiraj objekt korisnik sustava i predaj mu kontrolu
             KlijentSustava klijent = new KlijentSustava();
+            klijent.adresa = korisnik.adresa;
+            klijent.port = korisnik.port;
+            klijent.komanda = korisnik.komanda;
             klijent.preuzmiKontrolu();
         }
     }
 
-    public KorisnikSustava() {
-        preuzmiPostavke(args);
+    private void preuzmiPostavke(String[] args) {
+        String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
+
+        this.komanda = "";
+        for (String arg : args) {
+            this.komanda += arg + " ";
+        }
+
+        Pattern pattern = Pattern.compile(usernamePass);
+        Matcher m = pattern.matcher(this.komanda);
+
+        if (m.find()) {
+            this.korisnik = args[1].trim();
+            this.lozinka = args[3].trim();
+            this.port = Integer.valueOf(args[7]);
+            this.adresa = args[5].trim();
+
+            this.administrator = true;
+        }
+        else {
+            this.port = Integer.valueOf(args[3]);
+            this.adresa = args[1].trim();
+        }
     }
 
-    
-    private void preuzmiPostavke(String[] args) {
-        //TODO hardkodiran admin, potrebno doradit za korisnika
-//        this.korisnik = "matnovak";
-//        this.lozinka = "123456";
-        this.port = 8000;
-        this.adresa = "127.0.0.1";
-        
-        if(korisnik != null){
-            if(!korisnik.isEmpty()){
-                administrator = true;
-            }
+    protected void posaljiKomandu(Socket socket, String komanda) {
+        try {
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(this.komanda.getBytes());
+            outputStream.flush();
+            socket.shutdownOutput();
+        } catch (IOException ex) {
+            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        if(this.lozinka != null){
-            this.lozinka = this.lozinka.trim();
-            if(!lozinka.isEmpty()){
-                administrator = true;
-            }
-            else{
-                administrator = false;
-            }
-        }
-        else{
-                administrator = false;
-            }
-        
-        //TODO provjera ako je korisnik administrator u postavkama
-        //TODO Ažuriraj evidenciju
     }
-    
+
+    protected String zaprimiOdgovor(Socket socket) {
+        InputStream inputStream = null;
+        StringBuffer stringBuffer = null;
+        try {
+            inputStream = socket.getInputStream();
+            stringBuffer = new StringBuffer();
+            while (true) {
+                int znak = inputStream.read();
+                
+                if (znak == -1) {
+                    break;
+                }
+                
+                stringBuffer.append((char) znak);
+            }   
+        } catch (IOException ex) {
+            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally {
+            try {
+                inputStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        return stringBuffer.toString();
+    }
 }

@@ -15,27 +15,11 @@ public class KlijentSustava extends KorisnikSustava{
     public void preuzmiKontrolu(){
         try {
             Socket socket = new Socket(this.adresa, this.port); //adresa i port dobiveni iz args[]
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
-            //TODO provjeri upisane argumente
-            String komanda = "CEKAJ 60;";
-            outputStream.write(komanda.getBytes());
-            outputStream.flush();
-            //outputStream.close(); ne može jer pada program nakon
-            socket.shutdownOutput();    //zatvara output stream za socket
+                        
+            posaljiKomandu(socket, this.komanda);
             
-            StringBuffer stringBuffer = new StringBuffer();
-            
-            while (true) {  
-                int znak = inputStream.read();
-                
-                if(znak == -1)
-                    break;
-                
-                stringBuffer.append((char) znak);
-            }
-            
-            System.out.println("Odgovor :" + stringBuffer.toString());
+            String odgovor = zaprimiOdgovor(socket);
+            System.out.println("Odgovor: " + odgovor);
             
         } catch (IOException ex) {
             Logger.getLogger(AdministratorSustava.class.getName()).log(Level.SEVERE, null, ex);
