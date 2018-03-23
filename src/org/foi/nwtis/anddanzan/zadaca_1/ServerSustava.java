@@ -85,7 +85,7 @@ public class ServerSustava {
                 if (brojacDretvi == maxBrRadnihDretvi) {
                     //Kreirat metodu za slanje poruke outputStreamom u socket
                     System.out.println("Korisnik odspojen - nema dretve");
-                    ServerSustava.posaljiOdgovor(socket, "ERROR 01 - Nema raspoložive radne dretve!");
+                    ServerSustava.posaljiOdgovor(socket, "ERROR 01 - Nema raspolozive radne dretve!");
 
                     //Ažuriraj evidenciju rada
                     long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();

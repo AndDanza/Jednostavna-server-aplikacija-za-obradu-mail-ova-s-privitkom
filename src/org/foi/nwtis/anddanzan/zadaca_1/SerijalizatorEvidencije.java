@@ -45,30 +45,21 @@ class SerijalizatorEvidencije extends Thread{
             String timeString = new SimpleDateFormat("HH:mm:ss:SSS").format(pocetak);
             System.out.println("Dretva " + this.nazivDretve + " krenula u: " + timeString);
             
-            File datEvidencije = new File(nazivDatEvidencije);
-            ObjectOutputStream objOutputStream = null;
             try {
-                objOutputStream = new ObjectOutputStream(new FileOutputStream(datEvidencije));
-                //TODO pozvati objekt evidencijaProp rada iz ServerSustava 
+                //pozvati objekt evidencijaProp rada iz ServerSustava 
                 Evidencija evidencijaZaPohranu = ServerSustava.evidencija;
                 Properties evidencijaProp = evidencijaZaPohranu.vratiPropertiesEvidencije();
-                //TODO serijalizirat evidenciju u datoteku
+                //serijalizirat evidenciju u datoteku
                 Konfiguracija pohranaEvidencije = KonfiguracijaApstraktna.kreirajKonfiguraciju(nazivDatEvidencije);
                 pohranaEvidencije.kopirajKonfiguraciju(evidencijaProp);
                 pohranaEvidencije.spremiKonfiguraciju();
-                //TODO ažuriraj evidenciju brojObavljenihSerijalizacija
+                
+                //ažuriraj evidenciju brojObavljenihSerijalizacija
                 long brSerijalizacija = ServerSustava.evidencija.getBrojObavljenihSerijalizacija();
                 ServerSustava.evidencija.setBrojObavljenihSerijalizacija(++brSerijalizacija);
-            } catch (FileNotFoundException ex) {
+            } 
+            catch (/*IOException | */NemaKonfiguracije | NeispravnaKonfiguracija ex) {
                 System.out.println(ex.getMessage());
-            } catch (IOException | NemaKonfiguracije | NeispravnaKonfiguracija ex) {
-                System.out.println(ex.getMessage());
-            } finally{
-                try {
-                    objOutputStream.close();
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
-                }
             }
             
             long kraj = System.currentTimeMillis();
