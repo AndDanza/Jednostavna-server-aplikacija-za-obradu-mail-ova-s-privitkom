@@ -4,6 +4,7 @@ port=8000
 max.broj.zahtjeva.cekanje=5
 max.broj.radnih.dretvi=3
 datoteka.evidencije.rada=NWTiS_anddanzan_evidencija_rada.txt
+datoteka.iot.zapisa=NWTiS_anddanzan_iot.json
 interval.za.serijalizaciju=60
 skup.kodova.znakova=UTF-8
 admin.0.korisnik=lozinka

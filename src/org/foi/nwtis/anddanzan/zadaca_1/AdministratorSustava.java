@@ -45,8 +45,6 @@ public class AdministratorSustava extends KorisnikSustava {
                 Pattern pattern = Pattern.compile(regexDat);
                 Matcher m = pattern.matcher(this.komanda);
 
-                odgovor = odgovor.substring(odgovor.indexOf("#"), odgovor.length());
-                
                 if (m.find()) {
                     String datoteka = m.group(0);
                     FileWriter file = new FileWriter(datoteka);

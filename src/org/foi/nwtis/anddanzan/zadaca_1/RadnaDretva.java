@@ -230,10 +230,10 @@ class RadnaDretva extends Thread {
             }
             //TODO Pročitat misli da saznamo šta radi - forum
             else if (komanda.contains("evidencija")) {
-                return deserijalizirajEvidenciju();
+                return deserijalizirajZapisZaSlanje("datoteka.evidencije.rada");
             }
             else {
-                return "iot";
+                return deserijalizirajZapisZaSlanje("datoteka.iot.zapisa");
             }
         }
         else {
@@ -291,13 +291,13 @@ class RadnaDretva extends Thread {
         datoteka - upload iot datoteke
         spavanje - spavanje dretve n milisekundi
      */
-    private String deserijalizirajEvidenciju() {
+    private String deserijalizirajZapisZaSlanje(String datoteka) {
         String deserijaliziranaEvidencija = "";
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
 
         try {
-            byte[] encoded = Files.readAllBytes(Paths.get(konf.dajPostavku("datoteka.evidencije.rada")));
+            byte[] encoded = Files.readAllBytes(Paths.get(konf.dajPostavku(datoteka)));
             header += encoded.length + "\n";
             deserijaliziranaEvidencija = new String(encoded, kodZnakova);
         } catch (IOException ex) {
