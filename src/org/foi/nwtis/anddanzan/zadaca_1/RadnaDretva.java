@@ -66,20 +66,20 @@ class RadnaDretva extends Thread {
         String odgovorServera = "";
 
         //vrati odgovarajući odgovor korisniku
-        if (!komandaValjana.equals("admin") && !komandaValjana.equals("klijent")) {
-            odgovorServera = "ERROR 02; " + komandaValjana;
+        if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
+            odgovorServera = komandaValjana;
         }
-        else if (komandaValjana.equals("admin")) {
+        else if (komandaValjana.contains("admin")) {
             //Provjeriti dozvoljene komande 
-            odgovorServera = izvrsiKomanduAdmina(zahtjev);
+            odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), true);
         }
-        else if (komandaValjana.equals("klijent") && !RadnaDretva.pauza) {
-            odgovorServera = izvrsiKomanduKlijenta(zahtjev);
+        else if (komandaValjana.contains("klijent") && !RadnaDretva.pauza) {
+            odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), false);
         }
         else {
-            odgovorServera = "ERROR 02; Server je u stanju pauze!";
+            odgovorServera = "ERROR 11; Server JE u stanju pauze!";
         }
-        
+
         long stop = System.currentTimeMillis();
         long vrijemeIzvrsavanja = stop - this.start;
         long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
@@ -104,40 +104,40 @@ class RadnaDretva extends Thread {
      * @return true (zahtjev je valjana) ili false (zahtjev nije dobro zadana)
      */
     private String provjeriKomandu(String komanda) {
-        Boolean provjeriUsera = provjeriKorisnickoIme(komanda);
+        String provjeriUsera = provjeriKorisnickoIme(komanda);
         String provjeriKomadnu = provjeriNaredbu(komanda);
         String poruka = null;
 
         //ispravna komanda
         if (provjeriKomadnu != null) {
             //admin ili ne
-            if (provjeriUsera) {
+            if (provjeriUsera.equals("OK;")) {
                 //je li zahtjev u komandi adminov ili ne
-                if (!provjeriKomadnu.equals("admin")) {
+                if (!provjeriKomadnu.contains("admin")) {
                     long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
-                    poruka = "Klijentska komanda - nemate ovlasti!!";
+                    poruka = "ERROR 10; Klijentska komanda - nemate ovlasti!!";
                 }
                 else {
-                    poruka = "admin";
+                    poruka = provjeriKomadnu;
                 }
             }
             else {
                 //je li zahtjev u komandi klijentov ili ne
-                if (!provjeriKomadnu.equals("klijent")) {
+                if (!provjeriKomadnu.contains("klijent")) {
                     long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
-                    poruka = "Administratorska komanda - nemate ovlasti!";
+                    poruka = "ERROR 10; Administratorska komanda - nemate ovlasti!";
                 }
                 else {
-                    poruka = "klijent";
+                    poruka = provjeriKomadnu;
                 }
             }
         }
         else {
             long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
             ServerSustava.evidencija.setBrojNeispravnihZahtjeva(nedozvoljeniZahtjevi);
-            poruka = "Sintaksa naredbe neispravna!";
+            poruka = "ERROR 02; Sintaksa naredbe neispravna!";
         }
 
         return poruka;
@@ -150,7 +150,7 @@ class RadnaDretva extends Thread {
      * @return true (lozinka i korisničko ime pravilno uneseni) ili false
      * (nepravilno unesena lozinka i korisničko ime)
      */
-    private Boolean provjeriKorisnickoIme(String komanda) {
+    private String provjeriKorisnickoIme(String komanda) {
         String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
         Boolean admin = false;
 
@@ -165,12 +165,13 @@ class RadnaDretva extends Thread {
                 String konfLozinka = konf.dajPostavku("admin." + i + "." + korisnik);
                 if (konfLozinka != null) {
                     if (konfLozinka.equals(loznika)) {
-                        return true;
+                        return "OK;";
                     }
                 }
             }
+            return "ERROR 10; Korisnik nije administrator ili lozinka ne odgovara";
         }
-        return admin;
+        return "ERROR 02; Sintaksa nije ispravna ili komanda nije dozvoljena";
 
     }
 
@@ -182,30 +183,60 @@ class RadnaDretva extends Thread {
      * naredba)
      */
     private String provjeriNaredbu(String komanda) {
-        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
-        String naredbaKlijent = "(?:(--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?((([A-Za-z]:\\\\)([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaKlijent = "((--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
 
         Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
-        Boolean admin = m.find();
+        if (m.find()) {
+            String replacedString = m.group(0).replace("--", "");
+            return "admin;" + replacedString;
+        }
 
         pattern = Pattern.compile(naredbaKlijent);
         m = pattern.matcher(komanda);
-        Boolean klijent = m.find();
+        if (m.find()) {
+            String replacedString = m.group(0).replace("--", "");
+            return "klijent;" + replacedString;
+        }
 
-        if (admin) {
-            return "admin";
-        }
-        else if (klijent) {
-            return "klijent";
-        }
-        else {
-            return null;
-        }
+        return null;
     }
 
-    private String izvrsiKomanduAdmina(String komanda) {
-        //TODO case-evi za komande i poziv metoda koje odrađuju
+    private String izvrsiKomandu(String komanda, Boolean admin) {
+        if(admin)
+            if(komanda.contains("kreni")){
+                if(!RadnaDretva.pauza)
+                    return "ERROR 12; Server NIJE u stanju pauze!";
+                else{
+                    RadnaDretva.pauza = false;
+                    return "OK;";
+                }
+            }
+            else if(komanda.contains("zaustavi"))
+                return "zaustavi";
+            else if(komanda.contains("pauza")){
+                if(RadnaDretva.pauza)
+                    return "ERROR 11; Server JE u stanju pauze!";
+                else{
+                    RadnaDretva.pauza = true;
+                    return "OK;";
+                }
+            }  
+            else if(komanda.contains("evidencija"))
+                return "evidencija";
+            else if(komanda.contains("stanje"))
+                return "stanje";
+            else
+                return "iot";
+        else{
+            if(komanda.contains("spavanje"))
+                return "spavanje";
+        }
+        return "";
+    }
+
+    //TODO case-evi za komande i poziv metoda koje odrađuju
 
         /*
         potvrdan odgovor
@@ -226,10 +257,7 @@ class RadnaDretva extends Thread {
         
         bool varijabla za stanje pauza = false;
          */
-        return "";
-    }
 
-    private String porukaPogreske(String kodGreske) {
         //TODO case-evi za poruke greške dobivene u pozivu
         /*
         negativan odgovor
@@ -244,10 +272,8 @@ class RadnaDretva extends Thread {
         Ako je neispravan json format vraća odgovor ERROR 20 - iot klijent
         Ako nije uspjela odraditi čekanje vraća mu se odgovor ERROR 22 - klijent
          */
-        return "";
-    }
 
-    private String izvrsiKomanduKlijenta(String komanda) {
+    
         //TODO case-evi za komande i poziv metoda koje odrađuju
 
         /*
@@ -260,6 +286,4 @@ class RadnaDretva extends Thread {
         datoteka - upload iot datoteke
         spavanje - spavanje dretve n milisekundi
          */
-        return "";
-    }
 }
