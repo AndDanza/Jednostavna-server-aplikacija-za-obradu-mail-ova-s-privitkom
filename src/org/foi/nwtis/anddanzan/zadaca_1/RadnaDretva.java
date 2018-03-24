@@ -55,11 +55,11 @@ class RadnaDretva extends Thread {
      */
     @Override
     public void run() {
-//        try {
-//            Thread.sleep(30000);    //radi testiranja
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            Thread.sleep(30000);    //radi testiranja
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         String zahtjev = ServerSustava.zaprimiKomandu(socket);
         System.out.println("Dretva " + this.nazivDretve + " Komanda: " + zahtjev);
@@ -244,53 +244,6 @@ class RadnaDretva extends Thread {
         return "";
     }
 
-    //TODO case-evi za komande i poziv metoda koje odrađuju
-
-    /*
-        potvrdan odgovor
-        ----------------
-        OK
-        Ako je u redu i ako server nije u stanju pauze, korisniku se vraća odgovor OK; 0.
-        Ako je u redu i ako server je u stanju pauze, korisniku se vraća odgovor OK; 1.
-        Ako je u redu i ako je server ranije dobio komandu za zaustavljenje a još nije zatvorio prijem zahtjeva, korisniku se vraća odgovor OK; 2.
-        evidencija i iot - Ako je u redu korisniku se vraća odgovor OK; ZN-KODOVI kod; DUZINA n<CRLF> i zatim vraća deserijalizirane podatke o evidenciji rada u formatiranom obliku u zadanom skupu kodova znakova iz postavki.
-        
-        
-        pauza - primi naredbe samo admina
-        kreni - prijem svih komandi
-        zaustavi - ugasi server
-        stanje - vrati poruku stanja servera
-        evidencija - vrati evidenciju
-        iot - vrati iot datoteku
-        
-        bool varijabla za stanje pauza = false;
-     */
-    //TODO case-evi za poruke greške dobivene u pozivu
-    /*
-        negativan odgovor
-        -------------------
-        Ako je u stanju pauze vraća se odgovor ERROR 11
-        korisnik nije administrator ili lozinka ne odgovara, vraća se odgovor ERROR 10
-        Ako nije u stanju pauze vraća se odgovor ERROR 12
-        Ako nešto nije u redu s prekidom rada ili serijalizacijom vraća se odgovor ERROR 13
-        Ako nešto nije u redu s evidencijom rada vraća se odgovor ERROR 15 - evidencija
-        ko nešto nije u redu s evidencijom rada vraća se odgovor ERROR 16 - iot
-        došlo do problema tijekom rada vraća mu se odgovor ERROR 21 - klijent
-        Ako je neispravan json format vraća odgovor ERROR 20 - iot klijent
-        Ako nije uspjela odraditi čekanje vraća mu se odgovor ERROR 22 - klijent
-     */
-    //TODO case-evi za komande i poziv metoda koje odrađuju
-
-    /*
-        potvrdan odgovor
-        ----------------
-        OK
-        Ako je sve u redu i dodan je novi IOT, vraća mu se odgovor OK 20; 
-        Ako je sve u redu i ažuriran je postojeći IOT, vraća mu se odgovor OK 21;
-        
-        datoteka - upload iot datoteke
-        spavanje - spavanje dretve n milisekundi
-     */
     private String deserijalizirajZapisZaSlanje(String datoteka) {
         String deserijaliziranaEvidencija = "";
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
@@ -298,12 +251,16 @@ class RadnaDretva extends Thread {
 
         try {
             byte[] encoded = Files.readAllBytes(Paths.get(konf.dajPostavku(datoteka)));
-            header += encoded.length + "\n";
+            header += encoded.length + "<CRLF>\n";
             deserijaliziranaEvidencija = new String(encoded, kodZnakova);
+            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim();
         } catch (IOException ex) {
-            Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
+            if(datoteka.contains("evidencija"))
+                    deserijaliziranaEvidencija = "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
+            else
+                deserijaliziranaEvidencija = "ERROR 16; Doslo je do greske pri dohvacanju datoteke IOT uređaja!";
         }
 
-        return header + deserijaliziranaEvidencija.trim();
+        return deserijaliziranaEvidencija;
     }
 }
