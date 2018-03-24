@@ -1,10 +1,5 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -15,7 +10,7 @@ import org.nwtis.anddanzan.konfiguracije.NeispravnaKonfiguracija;
 import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
- *
+ * Klasa dretve za serijalizaciju evidencije
  * @author Andrea
  */
 class SerijalizatorEvidencije extends Thread{
@@ -24,17 +19,28 @@ class SerijalizatorEvidencije extends Thread{
     private Konfiguracija konf;
     private boolean radiDok = true;
 
+    /**
+     *  Konstruktor
+     * @param nazivDretve ime dretve s rednim brojem
+     * @param konf objekt učitane konfiguracije
+     */
     SerijalizatorEvidencije(String nazivDretve, Konfiguracija konf) {
         super(nazivDretve);
         this.nazivDretve = nazivDretve;
         this.konf = konf;
     }
 
+    /**
+     * Thread metoda
+     */
     @Override
     public void interrupt() {
         super.interrupt(); 
     }
 
+    /**
+     * Thread metoda
+     */
     @Override
     public void run() {
         String nazivDatEvidencije = konf.dajPostavku("datoteka.evidencije.rada");
@@ -58,7 +64,7 @@ class SerijalizatorEvidencije extends Thread{
                 long brSerijalizacija = ServerSustava.evidencija.getBrojObavljenihSerijalizacija();
                 ServerSustava.evidencija.setBrojObavljenihSerijalizacija(++brSerijalizacija);
             } 
-            catch (/*IOException | */NemaKonfiguracije | NeispravnaKonfiguracija ex) {
+            catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
                 System.out.println(ex.getMessage());
             }
             
@@ -74,6 +80,9 @@ class SerijalizatorEvidencije extends Thread{
         }
     }
 
+    /**
+     * Thread metoda
+     */
     @Override
     public synchronized void start() {
         super.start();

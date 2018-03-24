@@ -10,8 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
- * @author grupa_2
+ * Klasa koja definira stanja i ponašanje korisnika - Administratora i Klijenta
+ * @author Andrea
  */
 public class KorisnikSustava {
 
@@ -28,9 +28,10 @@ public class KorisnikSustava {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO provjeri upisane argumente
+        //provjeri upisane argumente
         KorisnikSustava korisnik = new KorisnikSustava();
-        korisnik.preuzmiPostavke(args); //TODO kroz arg prosljeđuje se komanda, na temelju komande odredi koji je korisnik (admin ili klijent)
+        //kroz arg prosljeđuje se komanda, na temelju komande odredi koji je korisnik (admin ili klijent)
+        korisnik.preuzmiPostavke(args); 
         korisnik.args = args;
 
         if (korisnik.administrator) {
@@ -41,7 +42,6 @@ public class KorisnikSustava {
             admin.preuzmiKontrolu();    //stvaranje socketa i povezivanje sa serverom
         }
         else {
-            //TODO kreiraj objekt korisnik sustava i predaj mu kontrolu
             KlijentSustava klijent = new KlijentSustava();
             klijent.adresa = korisnik.adresa;
             klijent.port = korisnik.port;
@@ -50,6 +50,10 @@ public class KorisnikSustava {
         }
     }
 
+    /**
+     * Određivanje vrste korisnika te učitavanje ulaznih parametara (komande)
+     * @param args the command line arguments
+     */
     private void preuzmiPostavke(String[] args) {
         String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
 
@@ -75,6 +79,11 @@ public class KorisnikSustava {
         }
     }
 
+    /**
+     * Metoda za slanje komande kroz socket pomoću <code>OutputStream-a</code>
+     * @param socket Kreirani socket korisnika prema serveru
+     * @param komanda string varijabla s komandom za server
+     */
     protected void posaljiKomandu(Socket socket, String komanda) {
         try {
             OutputStream outputStream = socket.getOutputStream();
@@ -86,6 +95,11 @@ public class KorisnikSustava {
         }
     }
 
+    /**
+     * Metoda za primanje odgovora servera kroz socket pomoću <code>InputStream-a</code>
+     * @param socket Kreirani socket korisnika prema serveru
+     * @return string odgovora servera
+     */
     protected String zaprimiOdgovor(Socket socket) {
         InputStream inputStream = null;
         StringBuffer stringBuffer = null;

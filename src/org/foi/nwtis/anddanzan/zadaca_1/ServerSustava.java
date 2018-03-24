@@ -13,7 +13,7 @@ import org.nwtis.anddanzan.konfiguracije.NeispravnaKonfiguracija;
 import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
- *
+ * Klasa servera
  * @author Andrea
  */
 public class ServerSustava {
@@ -66,6 +66,7 @@ public class ServerSustava {
         }
 
         //TODO instanciranje objekta za IOT uređaj - potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
+        
         SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
         serijalizatorEvid.start();
         try {
@@ -86,7 +87,7 @@ public class ServerSustava {
                 if (brojacDretvi == maxBrRadnihDretvi) {
                     //Kreirat metodu za slanje poruke outputStreamom u socket
                     System.out.println("Korisnik odspojen - nema dretve");
-                    ServerSustava.posaljiOdgovor(socket, "ERROR 01 - Nema raspolozive radne dretve!");
+                    ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
 
                     //Ažuriraj evidenciju rada
                     long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();
@@ -99,7 +100,7 @@ public class ServerSustava {
 
                     //ukupan broj dretvi
                     long brDretvi = ServerSustava.evidencija.getBrojUspjesnihZahtjeva();
-                    ServerSustava.evidencija.setBrojUpsjesnihZahtjeva(++brDretvi);
+                    ServerSustava.evidencija.setBrojUspjesnihZahtjeva(++brDretvi);
                 }
             }
         } catch (IOException ex) {
@@ -107,6 +108,11 @@ public class ServerSustava {
         }
     }
 
+    /**
+     * Metoda za slanje komande kroz socket pomoću <code>OutputStream-a</code>
+     * @param socket Kreirani socket za korisnike
+     * @param poruka string varijabla s odgovorom servera
+     */
     public static void posaljiOdgovor(Socket socket, String poruka) {
         try {
             OutputStream outputStream = socket.getOutputStream();
@@ -118,6 +124,11 @@ public class ServerSustava {
         }
     }
 
+    /**
+     * Metoda za primanje zahtjeva klijenta (komande) kroz socket pomoću <code>InputStream-a</code>
+     * @param socket Kreirani socket za korisnike
+     * @return string zahtjeva korisnika
+     */
     public static String zaprimiKomandu(Socket socket) {
         InputStream inputStream = null;
         StringBuffer stringBuffer = null;

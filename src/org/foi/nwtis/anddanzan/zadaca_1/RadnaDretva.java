@@ -1,8 +1,5 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,18 +8,19 @@ import java.util.regex.Pattern;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
- *
+ * Dretva koja zaprima iobrađuje zahtjeve korisnika
  * @author Andrea
  */
 class RadnaDretva extends Thread {
+
     private Socket socket;
     private String nazivDretve;
     private Konfiguracija konf;
-    
+
     private long start;
 
     /**
-     *
+     * Konstruktor
      * @param socket Socket preko kojeg komuniciraju server i korisnik
      * @param nazivDretve ime dretve "anddanzan-i", (i broj od 0 do 63)
      * @param konf podac učitani iz konfiguracije
@@ -35,7 +33,7 @@ class RadnaDretva extends Thread {
     }
 
     /**
-     *
+     * Thread metoda
      */
     @Override
     public void interrupt() {
@@ -43,48 +41,38 @@ class RadnaDretva extends Thread {
     }
 
     /**
-     *
+     * Thread metoda
      */
     @Override
     public void run() {
         try {
-            try {
-                Thread.sleep(30000);    //radi testiranja
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            OutputStream outputStream = this.socket.getOutputStream();
-            
-            String komanda = ServerSustava.zaprimiKomandu(socket);
-            System.out.println("Dretva " + this.nazivDretve + " Komanda: " + komanda);
-
-            Boolean komandaValjana = provjeriKomandu(komanda);   //TODO provjeri ispravnost primljene komande
-            //TODO vrati odgovarajući odgovor korisniku
-            //TODO Provjeriti dozvoljene komande
-
-            String odgovorServera = "";
-            if (komandaValjana) {
-                odgovorServera = izvrsiKomanduAdmina(komanda);
-                //odgovorServera = izvrsiKomanduKlijenta(komanda);
-            }
-            else {
-                odgovorServera = porukaPogreske("01");
-            }
-            
-            ServerSustava.posaljiOdgovor(socket, "Zadatak izvrsen");
-        } catch (IOException ex) {
-            Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
+            Thread.sleep(30000);    //radi testiranja
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
+        String zahtjev = ServerSustava.zaprimiKomandu(socket);
+        System.out.println("Dretva " + this.nazivDretve + " Komanda: " + zahtjev);
+
+        //provjeri ispravnost primljene komande
+        String komandaValjana = provjeriKomandu(zahtjev);
+        //vrati odgovarajući odgovor korisniku
+        if (!komandaValjana.equals("OK")) {
+            ServerSustava.posaljiOdgovor(socket, "ERROR 02;" + komandaValjana);
+        }
+
+        //TODO Provjeriti dozvoljene komande
+//      String odgovorServera = "";
+//      odgovorServera = izvrsiKomanduAdmina(komanda);
+//      odgovorServera = izvrsiKomanduKlijenta(komanda);
         long stop = System.currentTimeMillis();
         long vrijemeIzvrsavanja = stop - this.start;
         long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
-        ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi+vrijemeIzvrsavanja);
+        ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi + vrijemeIzvrsavanja);
     }
 
     /**
-     *
+     * Thread metoda
      */
     @Override
     public synchronized void start() {
@@ -95,10 +83,10 @@ class RadnaDretva extends Thread {
     /**
      * Metoda za validaciju ulazne komande korisnika
      *
-     * @param komanda string komanda zaprimljena kroz socket
-     * @return true (komanda je valjana) ili false (komanda nije dobro zadana)
+     * @param komanda string zahtjev zaprimljena kroz socket
+     * @return true (zahtjev je valjana) ili false (zahtjev nije dobro zadana)
      */
-    private Boolean provjeriKomandu(String komanda) {
+    private String provjeriKomandu(String komanda) {
         Boolean provjeriKomadnu = provjeriKorisnickoIme(komanda);
         if (provjeriKomadnu) {
             provjeriKomadnu = provjeriAdresu(komanda);
@@ -107,42 +95,57 @@ class RadnaDretva extends Thread {
                 provjeriKomadnu = provjeriPort(komanda);
 
                 if (provjeriKomadnu) {
-                    return provjeriNaredbu(komanda);
+                    return provjeriNaredbu(komanda) == true ? "OK" : "Naredba nije dobro zadana";
                 }
                 else {
-                    return false;
+                    return "Unesena naredba nije dobro zadana";
                 }
             }
             else {
-                return false;
+                return "Adresa nije pravilno zadana";
             }
         }
         else {
-            return false;
+            return "Korisnisko ime ili lozinka nisu ispravni";
         }
     }
 
     /**
      * Provjera unosa korisničkog imena i lozinke u komandi korištenjem regex-a
      *
-     * @param komanda string komanda zaprimljena kroz socket
+     * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (lozinka i korisničko ime pravilno uneseni) ili false
      * (nepravilno unesena lozinka i korisničko ime)
      */
     private Boolean provjeriKorisnickoIme(String komanda) {
         String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
-
+        Boolean admin = false;
+        
         Pattern pattern = Pattern.compile(usernamePass);
         Matcher m = pattern.matcher(komanda);
+        
+        if (m.find()) {
+            String korisnik = m.group(1).trim();
+            String loznika = m.group(2).trim();
 
-        return m.find();
+            for (int i = 0; i < 10; i++) {
+                String konfLozinka = konf.dajPostavku("admin." + i + "." + korisnik);
+                if (konfLozinka != null) {
+                    if (konfLozinka.equals(loznika)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return admin;
+
     }
 
     /**
      * Provjera unosa ip adrese ili imenom zadane adrese u komandi korištenjem
      * regex-a
      *
-     * @param komanda string komanda zaprimljena kroz socket
+     * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (ip adresa ili adresa pravilno uneseni) ili false
      * (nepravilno unesena ip adresa ili adresa)
      */
@@ -157,6 +160,7 @@ class RadnaDretva extends Thread {
         pattern = Pattern.compile(adresa);
         m = pattern.matcher(komanda);
         Boolean adr = m.find();
+        
         if (ip || adr) {
             return true;
         }
@@ -168,11 +172,11 @@ class RadnaDretva extends Thread {
     /**
      * Provjera unosa porta zadanog u komandi korištenjem regex-a
      *
-     * @param komanda string komanda zaprimljena kroz socket
+     * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (port pravilno uneseni) ili false (nepravilno unesen port)
      */
     private Boolean provjeriPort(String komanda) {
-        String port = "-p ((?:8|9)?[0-9]{1}[0-9]{1}[0-9]{1}){1}"; //-komanda 8999, , vrijednosti u polju na indexma: 1
+        String port = "-p ((?:8|9)?[0-9]{1}[0-9]{1}[0-9]{1}){1}"; //-zahtjev 8999, , vrijednosti u polju na indexma: 1
 
         Pattern pattern = Pattern.compile(port);
         Matcher m = pattern.matcher(komanda);
@@ -183,7 +187,7 @@ class RadnaDretva extends Thread {
     /**
      * Provjera unosa naredbe serveru u komandi korištenjem regex-a
      *
-     * @param komanda string komanda zaprimljena kroz socket
+     * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (naredba pravilno uneseni) ili false (nepravilno unesena
      * naredba)
      */

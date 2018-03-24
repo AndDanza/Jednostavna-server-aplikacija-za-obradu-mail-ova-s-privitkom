@@ -5,8 +5,8 @@ import java.util.Properties;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
- *
- * @author grupa_2
+ * Klasa koja opisuje ponašanje i podatke evidencije o serveru
+ * @author Andrea
  */
 public class Evidencija implements Serializable {
 
@@ -18,6 +18,10 @@ public class Evidencija implements Serializable {
     private long ukupnoVrijemeRadaRadnihDretvi = 0; //rad svih dretvi
     private long brojObavljenihSerijalizacija = 0;
 
+    /**
+     * Konstruktor koji na temelju dobivene konfiguracije (učitane evidencije) inicijalizira objekt
+     * @param evidencijaRada učitana evidencije u objekt konfiguracije
+     */
     public Evidencija(Konfiguracija evidencijaRada) {
         this.ukupanBrojZahtjeva = Long.valueOf(evidencijaRada.dajPostavku("ukupan.broj.zahtjeva"));
         this.brojNeispravnihZahtjeva = Long.valueOf(evidencijaRada.dajPostavku("broj.neispravnih.zahtjeva"));
@@ -28,9 +32,16 @@ public class Evidencija implements Serializable {
         this.brojObavljenihSerijalizacija = Long.valueOf(evidencijaRada.dajPostavku("broj.obavljenih.serijalizacija"));
     }
 
+    /**
+     * KOnstruktor bez argumenata
+     */
     public Evidencija() {
     }
     
+    /**
+     * Metoda za kreiranje <code>Properties</code> objekta u kojem su pohranjeni podaci za naknadnu pohranu u konfiguraciju (datoteku evidencije)
+     * @return objekt tipa <code>Properties</code> 
+     */
     public Properties vratiPropertiesEvidencije(){
         setUkupanBrojZahtjeva(brojNedozvoljenihZahtjeva+brojNeispravnihZahtjeva+brojPrekinutihZahtjeva+brojUspjesnihZahtjeva);
         
@@ -45,58 +56,114 @@ public class Evidencija implements Serializable {
         return prop;
     }
     
+    /**
+     * Getter ukupnog broja zahtjeva
+     * @return ukupan broj zahtjeva tipa <code>long</code>
+     */
     public long getUkupanBrojZahtjeva() {
         return ukupanBrojZahtjeva;
     }
 
+    /**
+     * Setter ukupnog broja zahtjeva
+     * @param ukupanBrojZahtjeva vrijednost koja se postavlja u varijablu <code>ukupanBrojZahtjeva</code>
+     */
     public void setUkupanBrojZahtjeva(long ukupanBrojZahtjeva) {
         this.ukupanBrojZahtjeva = ukupanBrojZahtjeva;
     }
 
+    /**
+     * Getter broja neispravnih zahtjeva
+     * @return broj neispravnih zahtjeva tipa <code>long</code>
+     */
     public long getBrojNeispravnihZahtjeva() {
         return brojNeispravnihZahtjeva;
     }
 
+    /**
+     * Setter ukupnog broja neispravnih zahtjeva
+     * @param brojNeispravnihZahtjeva vrijednost koja se postavlja u varijablu <code>brojNeispravnihZahtjeva</code>
+     */
     public void setBrojNeispravnihZahtjeva(long brojNeispravnihZahtjeva) {
         this.brojNeispravnihZahtjeva = brojNeispravnihZahtjeva;
     }
 
+    /**
+     * Getter broja nedozvoljenih zahtjeva
+     * @return broj nedozvoljenih zahtjeva tipa <code>long</code>
+     */
     public long getBrojNedozvoljenihZahtjeva() {
         return brojNedozvoljenihZahtjeva;
     }
 
+    /**
+     * Setter ukupnog nedozvoljenih zahtjeva
+     * @param brojNedozvoljenihZahtjeva vrijednost koja se postavlja u varijablu <code>brojNedozvoljenihZahtjeva</code>
+     */
     public void setBrojNedozvoljenihZahtjeva(long brojNedozvoljenihZahtjeva) {
         this.brojNedozvoljenihZahtjeva = brojNedozvoljenihZahtjeva;
     }
 
+    /**
+     * Getter broja uspješnih zahtjeva
+     * @return broj uspješnih zahtjeva tipa <code>long</code>
+     */
     public long getBrojUspjesnihZahtjeva() {
         return brojUspjesnihZahtjeva;
     }
 
-    public void setBrojUpsjesnihZahtjeva(long brojUpsjesnihZahtjeva) {
+    /**
+     * Setter ukupnog uspješnih zahtjeva
+     * @param brojUpsjesnihZahtjeva vrijednost koja se postavlja u varijablu <code>brojUpsjesnihZahtjeva</code>
+     */
+    public void setBrojUspjesnihZahtjeva(long brojUpsjesnihZahtjeva) {
         this.brojUspjesnihZahtjeva = brojUpsjesnihZahtjeva;
     }
 
+    /**
+     * Getter broja prekinutih zahtjeva
+     * @return broj prekinutih zahtjeva tipa <code>long</code>
+     */
     public long getBrojPrekinutihZahtjeva() {
         return brojPrekinutihZahtjeva;
     }
 
+    /**
+     * Setter ukupnog prekinutih zahtjeva
+     * @param brojPrekinutihZahtjeva vrijednost koja se postavlja u varijablu <code>brojPrekinutihZahtjeva</code>
+     */
     public void setBrojPrekinutihZahtjeva(long brojPrekinutihZahtjeva) {
         this.brojPrekinutihZahtjeva = brojPrekinutihZahtjeva;
     }
 
+    /**
+     * Getter ukupno vrijeme rada radnih dretvi
+     * @return ukupno vrijeme rada radnih dretvi tipa <code>long</code>
+     */
     public long getUkupnoVrijemeRadaRadnihDretvi() {
         return ukupnoVrijemeRadaRadnihDretvi;
     }
 
+    /**
+     * Setter ukupnog vremena rada radnih dretvi
+     * @param ukupnoVrijemeRadaRadnihDretvi vrijednost koja se postavlja u varijablu <code>ukupnoVrijemeRadaRadnihDretvi</code>
+     */
     public void setUkupnoVrijemeRadaRadnihDretvi(long ukupnoVrijemeRadaRadnihDretvi) {
         this.ukupnoVrijemeRadaRadnihDretvi = ukupnoVrijemeRadaRadnihDretvi;
     }
 
+    /**
+     * Getter broja obavljenih serijalizacija
+     * @return broj obavljenih serijalizacija tipa <code>long</code>
+     */
     public long getBrojObavljenihSerijalizacija() {
         return brojObavljenihSerijalizacija;
     }
 
+    /**
+     * Setter ukupnog broja obavljenih serijalizacija
+     * @param brojObavljenihSerijalizacija vrijednost koja se postavlja u varijablu <code>brojObavljenihSerijalizacija</code>
+     */
     public void setBrojObavljenihSerijalizacija(long brojObavljenihSerijalizacija) {
         this.brojObavljenihSerijalizacija = brojObavljenihSerijalizacija;
     }

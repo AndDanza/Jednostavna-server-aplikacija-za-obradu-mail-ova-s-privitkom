@@ -1,17 +1,19 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Klasa klijenta koji ima ograničene komande prema serveru
  * @author Andrea
  */
 public class KlijentSustava extends KorisnikSustava{
+
+    /**
+     * Otvaranje soketa prema serveru te slanje komande i primanje odgovora
+     */
     public void preuzmiKontrolu(){
         try {
             Socket socket = new Socket(this.adresa, this.port); //adresa i port dobiveni iz args[]
