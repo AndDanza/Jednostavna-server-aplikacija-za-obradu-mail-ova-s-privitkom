@@ -1,6 +1,9 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -52,11 +55,11 @@ class RadnaDretva extends Thread {
      */
     @Override
     public void run() {
-        try {
-            Thread.sleep(30000);    //radi testiranja
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            Thread.sleep(30000);    //radi testiranja
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
         String zahtjev = ServerSustava.zaprimiKomandu(socket);
         System.out.println("Dretva " + this.nazivDretve + " Komanda: " + zahtjev);
@@ -183,8 +186,8 @@ class RadnaDretva extends Thread {
      * naredba)
      */
     private String provjeriNaredbu(String komanda) {
-        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
-        String naredbaKlijent = "((--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?((([A-Za-z]:)?(\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaKlijent = "((--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
 
         Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
@@ -204,41 +207,46 @@ class RadnaDretva extends Thread {
     }
 
     private String izvrsiKomandu(String komanda, Boolean admin) {
-        if(admin)
-            if(komanda.contains("kreni")){
-                if(!RadnaDretva.pauza)
-                    return "ERROR 12; Server NIJE u stanju pauze!";
-                else{
-                    RadnaDretva.pauza = false;
-                    return "OK;";
+        if (admin) {
+            if (komanda.contains("kreni")) {
+                RadnaDretva.pauza = false;
+                return RadnaDretva.pauza == false ? "ERROR 12; Server NIJE u stanju pauze!" : "OK;";
+            }
+            else if (komanda.contains("pauza")) {
+                RadnaDretva.pauza = true;
+                return RadnaDretva.pauza == false ? "ERROR 11; Server JE u stanju pauze!" : "OK;";
+            }
+            else if (komanda.contains("stanje")) {
+                if (RadnaDretva.pauza) {
+                    return "OK;0";
+                }
+                else {
+                    return "OK;1";
                 }
             }
-            else if(komanda.contains("zaustavi"))
+            //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
+            else if (komanda.contains("zaustavi")) {
                 return "zaustavi";
-            else if(komanda.contains("pauza")){
-                if(RadnaDretva.pauza)
-                    return "ERROR 11; Server JE u stanju pauze!";
-                else{
-                    RadnaDretva.pauza = true;
-                    return "OK;";
-                }
-            }  
-            else if(komanda.contains("evidencija"))
-                return "evidencija";
-            else if(komanda.contains("stanje"))
-                return "stanje";
-            else
+            }
+            //TODO Pročitat misli da saznamo šta radi - forum
+            else if (komanda.contains("evidencija")) {
+                return deserijalizirajEvidenciju();
+            }
+            else {
                 return "iot";
-        else{
-            if(komanda.contains("spavanje"))
+            }
+        }
+        else {
+            if (komanda.contains("spavanje")) {
                 return "spavanje";
+            }
         }
         return "";
     }
 
     //TODO case-evi za komande i poziv metoda koje odrađuju
 
-        /*
+    /*
         potvrdan odgovor
         ----------------
         OK
@@ -256,10 +264,9 @@ class RadnaDretva extends Thread {
         iot - vrati iot datoteku
         
         bool varijabla za stanje pauza = false;
-         */
-
-        //TODO case-evi za poruke greške dobivene u pozivu
-        /*
+     */
+    //TODO case-evi za poruke greške dobivene u pozivu
+    /*
         negativan odgovor
         -------------------
         Ako je u stanju pauze vraća se odgovor ERROR 11
@@ -271,12 +278,10 @@ class RadnaDretva extends Thread {
         došlo do problema tijekom rada vraća mu se odgovor ERROR 21 - klijent
         Ako je neispravan json format vraća odgovor ERROR 20 - iot klijent
         Ako nije uspjela odraditi čekanje vraća mu se odgovor ERROR 22 - klijent
-         */
+     */
+    //TODO case-evi za komande i poziv metoda koje odrađuju
 
-    
-        //TODO case-evi za komande i poziv metoda koje odrađuju
-
-        /*
+    /*
         potvrdan odgovor
         ----------------
         OK
@@ -285,5 +290,20 @@ class RadnaDretva extends Thread {
         
         datoteka - upload iot datoteke
         spavanje - spavanje dretve n milisekundi
-         */
+     */
+    private String deserijalizirajEvidenciju() {
+        String deserijaliziranaEvidencija = "";
+        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
+        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
+
+        try {
+            byte[] encoded = Files.readAllBytes(Paths.get(konf.dajPostavku("datoteka.evidencije.rada")));
+            header += encoded.length + "\n";
+            deserijaliziranaEvidencija = new String(encoded, kodZnakova);
+        } catch (IOException ex) {
+            Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return header + deserijaliziranaEvidencija.trim();
+    }
 }

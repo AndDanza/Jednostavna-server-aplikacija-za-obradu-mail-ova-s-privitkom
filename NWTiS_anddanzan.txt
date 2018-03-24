@@ -5,4 +5,5 @@ max.broj.zahtjeva.cekanje=5
 max.broj.radnih.dretvi=3
 datoteka.evidencije.rada=NWTiS_anddanzan_evidencija_rada.txt
 interval.za.serijalizaciju=60
+skup.kodova.znakova=UTF-8
 admin.0.korisnik=lozinka
