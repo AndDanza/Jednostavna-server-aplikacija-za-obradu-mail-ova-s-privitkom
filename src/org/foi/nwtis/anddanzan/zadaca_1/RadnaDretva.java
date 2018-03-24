@@ -17,6 +17,11 @@ class RadnaDretva extends Thread {
     private Socket socket;
     private String nazivDretve;
     private Konfiguracija konf;
+    /**
+     * Varijabla na razini servera prema kojoj je određeno nalazi li se sustav u
+     * stanju pauze ili ne
+     */
+    public static Boolean pauza = false;
 
     private long start;
 
@@ -58,24 +63,29 @@ class RadnaDretva extends Thread {
 
         //provjeri ispravnost primljene komande
         String komandaValjana = provjeriKomandu(zahtjev);
+        String odgovorServera = "";
 
         //vrati odgovarajući odgovor korisniku
-        if (komandaValjana != null) {
-            ServerSustava.posaljiOdgovor(socket, "ERROR 02; " + komandaValjana);
+        if (!komandaValjana.equals("admin") && !komandaValjana.equals("klijent")) {
+            odgovorServera = "ERROR 02; " + komandaValjana;
+        }
+        else if (komandaValjana.equals("admin")) {
+            //Provjeriti dozvoljene komande 
+            odgovorServera = izvrsiKomanduAdmina(zahtjev);
+        }
+        else if (komandaValjana.equals("klijent") && !RadnaDretva.pauza) {
+            odgovorServera = izvrsiKomanduKlijenta(zahtjev);
         }
         else {
-            ServerSustava.posaljiOdgovor(socket, "OK;");   //samo za potrebe testiranja
+            odgovorServera = "ERROR 02; Server je u stanju pauze!";
         }
-
-        //Provjeriti dozvoljene komande
         
-//      String odgovorServera = "";
-//      odgovorServera = izvrsiKomanduAdmina(komanda);
-//      odgovorServera = izvrsiKomanduKlijenta(komanda);
         long stop = System.currentTimeMillis();
         long vrijemeIzvrsavanja = stop - this.start;
         long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
         ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi + vrijemeIzvrsavanja);
+
+        ServerSustava.posaljiOdgovor(socket, odgovorServera);
     }
 
     /**
@@ -108,6 +118,9 @@ class RadnaDretva extends Thread {
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
                     poruka = "Klijentska komanda - nemate ovlasti!!";
                 }
+                else {
+                    poruka = "admin";
+                }
             }
             else {
                 //je li zahtjev u komandi klijentov ili ne
@@ -115,6 +128,9 @@ class RadnaDretva extends Thread {
                     long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
                     poruka = "Administratorska komanda - nemate ovlasti!";
+                }
+                else {
+                    poruka = "klijent";
                 }
             }
         }
