@@ -60,14 +60,15 @@ class RadnaDretva extends Thread {
         String komandaValjana = provjeriKomandu(zahtjev);
 
         //vrati odgovarajući odgovor korisniku
-        if (!komandaValjana.equals("OK")) {
+        if (komandaValjana != null) {
             ServerSustava.posaljiOdgovor(socket, "ERROR 02; " + komandaValjana);
         }
         else {
-            ServerSustava.posaljiOdgovor(socket, komandaValjana + ";");   //samo za potrebe testiranja
+            ServerSustava.posaljiOdgovor(socket, "OK;");   //samo za potrebe testiranja
         }
 
-        //TODO Provjeriti dozvoljene komande
+        //Provjeriti dozvoljene komande
+        
 //      String odgovorServera = "";
 //      odgovorServera = izvrsiKomanduAdmina(komanda);
 //      odgovorServera = izvrsiKomanduKlijenta(komanda);
@@ -94,24 +95,36 @@ class RadnaDretva extends Thread {
      */
     private String provjeriKomandu(String komanda) {
         Boolean provjeriUsera = provjeriKorisnickoIme(komanda);
-        Boolean provjeriAdresu = provjeriAdresu(komanda);
-        Boolean provjeriPort = provjeriPort(komanda);
         String provjeriKomadnu = provjeriNaredbu(komanda);
+        String poruka = null;
 
+        //ispravna komanda
         if (provjeriKomadnu != null) {
-            if (provjeriUsera && provjeriAdresu && provjeriPort) {
-                return "OK";
-            }
-            else if (provjeriAdresu && provjeriPort) {
-                return "OK";
+            //admin ili ne
+            if (provjeriUsera) {
+                //je li zahtjev u komandi adminov ili ne
+                if (!provjeriKomadnu.equals("admin")) {
+                    long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
+                    ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    poruka = "Klijentska komanda - nemate ovlasti!!";
+                }
             }
             else {
-                return "Sintaksa naredbe neispravna ili komanda nije dozvoljena!";
+                //je li zahtjev u komandi klijentov ili ne
+                if (!provjeriKomadnu.equals("klijent")) {
+                    long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
+                    ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    poruka = "Administratorska komanda - nemate ovlasti!";
+                }
             }
         }
         else {
-            return "Sintaksa naredbe neispravna ili komanda nije dozvoljena!";
+            long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
+            ServerSustava.evidencija.setBrojNeispravnihZahtjeva(nedozvoljeniZahtjevi);
+            poruka = "Sintaksa naredbe neispravna!";
         }
+
+        return poruka;
     }
 
     /**
@@ -143,49 +156,6 @@ class RadnaDretva extends Thread {
         }
         return admin;
 
-    }
-
-    /**
-     * Provjera unosa ip adrese ili imenom zadane adrese u komandi korištenjem
-     * regex-a
-     *
-     * @param komanda string zahtjev zaprimljena kroz socket
-     * @return true (ip adresa ili adresa pravilno uneseni) ili false
-     * (nepravilno unesena ip adresa ili adresa)
-     */
-    private Boolean provjeriAdresu(String komanda) {
-        String ipAdresa = "-s (\\b(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))\\b)"; //127.0.0.1, vrijednosti u polju na indexma: 1
-        String adresa = "-s ((?:[A-Za-z0-9]+(?:\\.[A-Za-z0-9])?)+)"; //anddanzan.foi.hr, , vrijednosti u polju na indexma: 1
-
-        Pattern pattern = Pattern.compile(ipAdresa);
-        Matcher m = pattern.matcher(komanda);
-        Boolean ip = m.find();
-
-        pattern = Pattern.compile(adresa);
-        m = pattern.matcher(komanda);
-        Boolean adr = m.find();
-
-        if (ip || adr) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
-     * Provjera unosa porta zadanog u komandi korištenjem regex-a
-     *
-     * @param komanda string zahtjev zaprimljena kroz socket
-     * @return true (port pravilno uneseni) ili false (nepravilno unesen port)
-     */
-    private Boolean provjeriPort(String komanda) {
-        String port = "-p ((?:8|9){1}[0-9]{1}[0-9]{1}[0-9]{1}){1}"; //-zahtjev 8999, , vrijednosti u polju na indexma: 1
-
-        Pattern pattern = Pattern.compile(port);
-        Matcher m = pattern.matcher(komanda);
-
-        return m.find();
     }
 
     /**
