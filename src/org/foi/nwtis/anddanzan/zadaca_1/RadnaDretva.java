@@ -9,6 +9,7 @@ import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
  * Dretva koja zaprima iobrađuje zahtjeve korisnika
+ *
  * @author Andrea
  */
 class RadnaDretva extends Thread {
@@ -21,6 +22,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Konstruktor
+     *
      * @param socket Socket preko kojeg komuniciraju server i korisnik
      * @param nazivDretve ime dretve "anddanzan-i", (i broj od 0 do 63)
      * @param konf podac učitani iz konfiguracije
@@ -56,9 +58,13 @@ class RadnaDretva extends Thread {
 
         //provjeri ispravnost primljene komande
         String komandaValjana = provjeriKomandu(zahtjev);
+
         //vrati odgovarajući odgovor korisniku
         if (!komandaValjana.equals("OK")) {
-            ServerSustava.posaljiOdgovor(socket, "ERROR 02;" + komandaValjana);
+            ServerSustava.posaljiOdgovor(socket, "ERROR 02; " + komandaValjana);
+        }
+        else {
+            ServerSustava.posaljiOdgovor(socket, komandaValjana + ";");   //samo za potrebe testiranja
         }
 
         //TODO Provjeriti dozvoljene komande
@@ -87,26 +93,24 @@ class RadnaDretva extends Thread {
      * @return true (zahtjev je valjana) ili false (zahtjev nije dobro zadana)
      */
     private String provjeriKomandu(String komanda) {
-        Boolean provjeriKomadnu = provjeriKorisnickoIme(komanda);
-        if (provjeriKomadnu) {
-            provjeriKomadnu = provjeriAdresu(komanda);
+        Boolean provjeriUsera = provjeriKorisnickoIme(komanda);
+        Boolean provjeriAdresu = provjeriAdresu(komanda);
+        Boolean provjeriPort = provjeriPort(komanda);
+        String provjeriKomadnu = provjeriNaredbu(komanda);
 
-            if (provjeriKomadnu) {
-                provjeriKomadnu = provjeriPort(komanda);
-
-                if (provjeriKomadnu) {
-                    return provjeriNaredbu(komanda) == true ? "OK" : "Naredba nije dobro zadana";
-                }
-                else {
-                    return "Unesena naredba nije dobro zadana";
-                }
+        if (provjeriKomadnu != null) {
+            if (provjeriUsera && provjeriAdresu && provjeriPort) {
+                return "OK";
+            }
+            else if (provjeriAdresu && provjeriPort) {
+                return "OK";
             }
             else {
-                return "Adresa nije pravilno zadana";
+                return "Sintaksa naredbe neispravna ili komanda nije dozvoljena!";
             }
         }
         else {
-            return "Korisnisko ime ili lozinka nisu ispravni";
+            return "Sintaksa naredbe neispravna ili komanda nije dozvoljena!";
         }
     }
 
@@ -120,10 +124,10 @@ class RadnaDretva extends Thread {
     private Boolean provjeriKorisnickoIme(String komanda) {
         String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
         Boolean admin = false;
-        
+
         Pattern pattern = Pattern.compile(usernamePass);
         Matcher m = pattern.matcher(komanda);
-        
+
         if (m.find()) {
             String korisnik = m.group(1).trim();
             String loznika = m.group(2).trim();
@@ -160,7 +164,7 @@ class RadnaDretva extends Thread {
         pattern = Pattern.compile(adresa);
         m = pattern.matcher(komanda);
         Boolean adr = m.find();
-        
+
         if (ip || adr) {
             return true;
         }
@@ -176,7 +180,7 @@ class RadnaDretva extends Thread {
      * @return true (port pravilno uneseni) ili false (nepravilno unesen port)
      */
     private Boolean provjeriPort(String komanda) {
-        String port = "-p ((?:8|9)?[0-9]{1}[0-9]{1}[0-9]{1}){1}"; //-zahtjev 8999, , vrijednosti u polju na indexma: 1
+        String port = "-p ((?:8|9){1}[0-9]{1}[0-9]{1}[0-9]{1}){1}"; //-zahtjev 8999, , vrijednosti u polju na indexma: 1
 
         Pattern pattern = Pattern.compile(port);
         Matcher m = pattern.matcher(komanda);
@@ -191,13 +195,27 @@ class RadnaDretva extends Thread {
      * @return true (naredba pravilno uneseni) ili false (nepravilno unesena
      * naredba)
      */
-    private Boolean provjeriNaredbu(String komanda) {
-        String naredba = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ([A-Za-z0-9_-]+\\.{1}[A-Za-z0-9]{1,10})|\\-\\-(iot) ([A-Za-z0-9_-]+\\.{1}[A-Za-z0-9]{1,10})";
+    private String provjeriNaredbu(String komanda) {
+        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ([A-Za-z0-9_-]+\\.{1}[A-Za-z0-9]{1,10})|\\-\\-(iot) ([A-Za-z0-9_-]+\\.{1}[A-Za-z0-9]{1,10})";
+        String naredbaKlijent = "(?:(--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?([A-Za-z0-9_-]+\\.{1}(i?)(txt|xml|json|bin))";
 
-        Pattern pattern = Pattern.compile(naredba);
+        Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
+        Boolean admin = m.find();
 
-        return m.find();
+        pattern = Pattern.compile(naredbaKlijent);
+        m = pattern.matcher(komanda);
+        Boolean klijent = m.find();
+
+        if (admin) {
+            return "admin";
+        }
+        else if (klijent) {
+            return "klijent";
+        }
+        else {
+            return null;
+        }
     }
 
     private String izvrsiKomanduAdmina(String komanda) {
