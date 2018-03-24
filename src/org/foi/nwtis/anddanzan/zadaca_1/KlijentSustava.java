@@ -2,8 +2,6 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Klasa klijenta koji ima ograničene komande prema serveru
@@ -24,7 +22,7 @@ public class KlijentSustava extends KorisnikSustava{
             System.out.println("Odgovor: " + odgovor);
             
         } catch (IOException ex) {
-            Logger.getLogger(AdministratorSustava.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR 02; Krivi port ili adresa u naredbi");
         }
     }
 }

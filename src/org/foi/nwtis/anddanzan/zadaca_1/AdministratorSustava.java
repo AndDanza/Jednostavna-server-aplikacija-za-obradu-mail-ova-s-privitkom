@@ -2,8 +2,6 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Administrator sustava koji može kontrolirati rad sustava (servera)
@@ -30,7 +28,7 @@ public class AdministratorSustava extends KorisnikSustava{
             String odgovor = zaprimiOdgovor(socket);
             System.out.println("Odgovor: " + odgovor);
         } catch (IOException ex) {
-            Logger.getLogger(AdministratorSustava.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR 02; Krivi port ili adresa u naredbi");
         }
     }
     
