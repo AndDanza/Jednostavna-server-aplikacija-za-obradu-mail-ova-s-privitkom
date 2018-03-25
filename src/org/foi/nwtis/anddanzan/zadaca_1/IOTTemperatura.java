@@ -21,9 +21,8 @@ public class IOTTemperatura extends IOT {
         this.id = id;
         this.lokacija = lokacija;
         this.temperatura = tempertatura;
-        this.vrijemeMjerenjaMilisekunde = vrijemeMjerenja;
+        this.vrijemeMilisekunde = vrijemeMjerenja;
     }
-
     /**
      * Getter za dohvaćanje temeprature
      * @return vraća <code>int</code> varijablu s vrijednosti temeprature
@@ -33,9 +32,13 @@ public class IOTTemperatura extends IOT {
     }
 
     /**
-     * Metoda InterfeceIOT koja definira vraćanje vrijednosti mjerenja svakog IOT uređaja
-     * @return string vrijednost mjerenja
+     * Setter za postavljanje nove vrijednosti temeprature
+     * @param temperatura nova temepratura za pohranu u klasu
      */
+    public void postaviTemperaturu(int temperatura) {
+        this.temperatura = temperatura;
+    }
+
     @Override
     public String vrijednostMjerenja() {
         return String.valueOf(this.temperatura);

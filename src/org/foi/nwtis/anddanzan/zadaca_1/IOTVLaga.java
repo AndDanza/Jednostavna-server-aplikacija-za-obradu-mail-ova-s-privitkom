@@ -26,10 +26,7 @@ public class IOTVLaga extends IOT {
         this.id = id;
         this.lokacija = lokacija;
         this.vlaga = vlaga;
-        this.vrijemeMjerenjaMilisekunde = vrijemeMjerenja;
-    }
-    
-    public IOTVLaga(){
+        this.vrijemeMilisekunde = vrijemeMjerenja;
     }
 
     /**

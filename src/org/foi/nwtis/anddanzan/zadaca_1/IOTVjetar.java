@@ -23,7 +23,7 @@ public class IOTVjetar extends IOT{
         this.id = id;
         this.lokacija = lokacija;
         this.brzinaVjetra = brzinaVjetra;
-        this.vrijemeMjerenjaMilisekunde = vrijemeMjerenja;
+        this.vrijemeMilisekunde = vrijemeMjerenja;
     }
 
     /**

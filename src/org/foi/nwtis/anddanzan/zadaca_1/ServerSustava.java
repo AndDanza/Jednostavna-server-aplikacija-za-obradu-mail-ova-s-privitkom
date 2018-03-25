@@ -41,7 +41,26 @@ public class ServerSustava {
         try {
             Konfiguracija konf = KonfiguracijaApstraktna.preuzmiKonfiguraciju(args[0]);
             ServerSustava serverSustava = new ServerSustava();
+            
+//            IOT uredaj = new IOTTemperatura(1, "Pula", 15, System.currentTimeMillis());
+//            IOT.uredajiIOT.add(uredaj);
+//            uredaj = new IOTVLaga(2, "Varaždin", 15, System.currentTimeMillis());
+//            IOT.uredajiIOT.add(uredaj);
+//            uredaj = new IOTVjetar(3, "Požega", 15, System.currentTimeMillis());
+//            IOT.uredajiIOT.add(uredaj);
+//            
+//            for (IOT arg : IOT.uredajiIOT) {
+//                System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
+//            }
+            
+            IOT.ucitajPodatke(konf.dajPostavku("datoteka.iot.zapisa"));
+            
+            for (IOT arg : IOT.uredajiIOT) {
+                System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
+            }
+            
             serverSustava.pokreniPosluzitelj(konf);
+            
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
             System.out.println(ex.getMessage());
         }
