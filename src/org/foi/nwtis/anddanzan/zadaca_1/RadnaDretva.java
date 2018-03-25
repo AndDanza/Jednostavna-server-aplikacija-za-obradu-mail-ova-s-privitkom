@@ -55,11 +55,11 @@ class RadnaDretva extends Thread {
      */
     @Override
     public void run() {
-        try {
-            Thread.sleep(30000);    //radi testiranja
-        } catch (InterruptedException ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            Thread.sleep(30000);    //radi testiranja
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
         String zahtjev = ServerSustava.zaprimiKomandu(socket);
         System.out.println("Dretva " + this.nazivDretve + " Komanda: " + zahtjev);
@@ -187,7 +187,7 @@ class RadnaDretva extends Thread {
      */
     private String provjeriNaredbu(String komanda) {
         String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
-        String naredbaKlijent = "((--spavanje) (600|[1-5]?[0-9]?[0-9]{1}) )?((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaKlijent = "(--spavanje) (600|[1-5]?[0-9]?[0-9]{1})|(([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1}";
 
         Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
@@ -226,7 +226,7 @@ class RadnaDretva extends Thread {
             }
             //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
             else if (komanda.contains("zaustavi")) {
-                return "zaustavi";
+                return "OK;zaustavi";
             }
             //TODO Pročitat misli da saznamo šta radi - forum
             else if (komanda.contains("evidencija")) {
@@ -238,7 +238,7 @@ class RadnaDretva extends Thread {
         }
         else {
             if (komanda.contains("spavanje")) {
-                return "spavanje";
+                return spavaj(komanda);
             }
         }
         return "";
@@ -263,5 +263,20 @@ class RadnaDretva extends Thread {
         }
 
         return deserijaliziranaEvidencija;
+    }
+
+    private String spavaj(String komanda) {
+        String regex = "(600|[1-5]?[0-9]?[0-9]{1})";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher m = pattern.matcher(komanda);
+        if (m.find()) {
+            int spavaj = Integer.valueOf(m.group(0));
+            try {
+                Thread.sleep(spavaj);
+            } catch (InterruptedException ex) {
+                return "ERROR 22; Spavanje dretve nije uspjelo";
+            }
+        }
+        return "OK;";
     }
 }
