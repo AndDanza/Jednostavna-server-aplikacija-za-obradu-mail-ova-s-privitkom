@@ -1,1 +1,20 @@
-[{"kljuc":"andrea","vrijednost":"sad"},{"kljuc":"dadasdas","vrijednost":"kada"},{"kljuc":"niovajdan","vrijednost":"dosla"}]
+[
+  {
+    "temperatura": 15,
+    "id": 1,
+    "lokacija": "Pula",
+    "vrijemeMilisekunde": 1522004796007
+  },
+  {
+    "vlaga": 15,
+    "id": 2,
+    "lokacija": "Varaždin",
+    "vrijemeMilisekunde": 1522004796007
+  },
+  {
+    "brzinaVjetra": 15,
+    "id": 3,
+    "lokacija": "Požega",
+    "vrijemeMilisekunde": 1522004796007
+  }
+]

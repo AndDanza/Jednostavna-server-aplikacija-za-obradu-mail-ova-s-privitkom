@@ -209,12 +209,14 @@ class RadnaDretva extends Thread {
     private String izvrsiKomandu(String komanda, Boolean admin) {
         if (admin) {
             if (komanda.contains("kreni")) {
+                String jeKrenuo = RadnaDretva.pauza == false ? "ERROR 12; Server NIJE u stanju pauze!" : "OK;";
                 RadnaDretva.pauza = false;
-                return RadnaDretva.pauza == false ? "ERROR 12; Server NIJE u stanju pauze!" : "OK;";
+                return jeKrenuo;
             }
             else if (komanda.contains("pauza")) {
+                String jePauza = RadnaDretva.pauza == false ?  "OK;" : "ERROR 11; Server JE u stanju pauze!";
                 RadnaDretva.pauza = true;
-                return RadnaDretva.pauza == false ? "ERROR 11; Server JE u stanju pauze!" : "OK;";
+                return jePauza;
             }
             else if (komanda.contains("stanje")) {
                 if (RadnaDretva.pauza) {
