@@ -1,9 +1,9 @@
 #Konfiguracija NWTIS anddanzan
-#Sun Mar 25 00:05:41 CET 2018
+#Sun Mar 25 11:28:59 CEST 2018
 ukupan.broj.zahtjeva=22
 broj.uspjesnih.zahtjeva=21
 broj.prekinutih.zahtjeva=1
 broj.nedozvoljenih.zahtjeva=0
-broj.obavljenih.serijalizacija=46
+broj.obavljenih.serijalizacija=47
 ukupno.vrijeme.rada.radnih.dretvi=150063
 broj.neispravnih.zahtjeva=0

@@ -245,6 +245,7 @@ class RadnaDretva extends Thread {
     }
 
     private String deserijalizirajZapisZaSlanje(String datoteka) {
+        //TODO kod bin datoteke bi moglo sve past, nakoniot kreiranja probat preko objekta ovoodradit
         String deserijaliziranaEvidencija = "";
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
