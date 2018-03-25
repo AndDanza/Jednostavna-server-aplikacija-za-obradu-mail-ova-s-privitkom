@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 /**
  * Administrator sustava koji može kontrolirati rad sustava (servera)
- *
  * @author Andrea
  */
 public class AdministratorSustava extends KorisnikSustava {

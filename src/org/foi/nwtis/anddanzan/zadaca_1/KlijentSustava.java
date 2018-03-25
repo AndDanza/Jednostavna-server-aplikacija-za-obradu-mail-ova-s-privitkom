@@ -1,12 +1,10 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -14,7 +12,6 @@ import java.util.regex.Pattern;
 
 /**
  * Klasa klijenta koji ima ograničene komande prema serveru
- *
  * @author Andrea
  */
 public class KlijentSustava extends KorisnikSustava {
@@ -50,6 +47,11 @@ public class KlijentSustava extends KorisnikSustava {
         }
     }
 
+    /**
+     * Učitavanje iot datoteke za slanje
+     * @param datoteka datoteka koju je potrebno učitati
+     * @return string sadržaja datoteke
+     */
     private String deserijalizirajZapisZaSlanje(String datoteka) {
         //TODO kod bin datoteke bi moglo sve past, nakoniot kreiranja probat preko objekta ovoodradit
         String datotekaIOT = "";

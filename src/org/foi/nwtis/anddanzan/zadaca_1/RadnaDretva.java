@@ -4,15 +4,12 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
  * Dretva koja zaprima iobrađuje zahtjeve korisnika
- *
  * @author Andrea
  */
 class RadnaDretva extends Thread {
@@ -21,8 +18,7 @@ class RadnaDretva extends Thread {
     private String nazivDretve;
     private Konfiguracija konf;
     /**
-     * Varijabla na razini servera prema kojoj je određeno nalazi li se sustav u
-     * stanju pauze ili ne
+     * Varijabla na razini servera prema kojoj je određeno nalazi li se sustav u stanju pauze ili ne
      */
     public static Boolean pauza = false;
 
@@ -30,7 +26,6 @@ class RadnaDretva extends Thread {
 
     /**
      * Konstruktor
-     *
      * @param socket Socket preko kojeg komuniciraju server i korisnik
      * @param nazivDretve ime dretve "anddanzan-i", (i broj od 0 do 63)
      * @param konf podac učitani iz konfiguracije
@@ -51,7 +46,7 @@ class RadnaDretva extends Thread {
     }
 
     /**
-     * Thread metoda
+     * Metoda za obradu korisničkih podataka i izvršavanje naredbi
      */
     @Override
     public void run() {
@@ -65,15 +60,16 @@ class RadnaDretva extends Thread {
         System.out.println("Dretva " + this.nazivDretve + " Komanda: " + zahtjev);
 
         //provjeri ispravnost primljene komande
+        //Provjeriti dozvoljene komande 
         String komandaValjana = provjeriKomandu(zahtjev);
         String odgovorServera = "";
 
-        //vrati odgovarajući odgovor korisniku
+        //ni admin ni klijent = ERROR ...
         if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
             odgovorServera = komandaValjana;
         }
         else if (komandaValjana.contains("admin")) {
-            //Provjeriti dozvoljene komande 
+
             odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), true);
         }
         else if (komandaValjana.contains("klijent") && !RadnaDretva.pauza) {
@@ -88,6 +84,7 @@ class RadnaDretva extends Thread {
         long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
         ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi + vrijemeIzvrsavanja);
 
+        //vrati odgovarajući odgovor korisniku
         ServerSustava.posaljiOdgovor(socket, odgovorServera);
     }
 
@@ -102,7 +99,6 @@ class RadnaDretva extends Thread {
 
     /**
      * Metoda za validaciju ulazne komande korisnika
-     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (zahtjev je valjana) ili false (zahtjev nije dobro zadana)
      */
@@ -111,11 +107,11 @@ class RadnaDretva extends Thread {
         String provjeriKomadnu = provjeriNaredbu(komanda);
         String poruka = null;
 
-        //ispravna komanda
+        //ispravna komanda?
         if (provjeriKomadnu != null) {
-            //admin ili ne
+            //admin ili ne?
             if (provjeriUsera.equals("OK;")) {
-                //je li zahtjev u komandi adminov ili ne
+                //je li zahtjev u komandi adminov ili ne?   admin;spavanje - ne može proći
                 if (!provjeriKomadnu.contains("admin")) {
                     long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
@@ -126,7 +122,7 @@ class RadnaDretva extends Thread {
                 }
             }
             else {
-                //je li zahtjev u komandi klijentov ili ne
+                //zahtjev ne odgovara adminu, ali ni klijentu (--spavanje korišteno kod adminove naredbe)
                 if (!provjeriKomadnu.contains("klijent")) {
                     long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
                     ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
@@ -148,15 +144,12 @@ class RadnaDretva extends Thread {
 
     /**
      * Provjera unosa korisničkog imena i lozinke u komandi korištenjem regex-a
-     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (lozinka i korisničko ime pravilno uneseni) ili false
      * (nepravilno unesena lozinka i korisničko ime)
      */
     private String provjeriKorisnickoIme(String komanda) {
         String usernamePass = "-k ([A-Za-z0-9_-]{3,10}) -l ([A-Za-z0-9_\\-#!]{3,10})";  //-k korisink -l lozinka, vrijednosti u polju na indexma: 1, 2
-        Boolean admin = false;
-
         Pattern pattern = Pattern.compile(usernamePass);
         Matcher m = pattern.matcher(komanda);
 
@@ -180,7 +173,6 @@ class RadnaDretva extends Thread {
 
     /**
      * Provjera unosa naredbe serveru u komandi korištenjem regex-a
-     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (naredba pravilno uneseni) ili false (nepravilno unesena
      * naredba)
@@ -193,19 +185,31 @@ class RadnaDretva extends Thread {
         Matcher m = pattern.matcher(komanda);
         if (m.find()) {
             String replacedString = m.group(0).replace("--", "");
-            return "admin;" + replacedString;
+            return "admin;" + replacedString;   //admin;pauza - izgled povratne poruke
         }
 
         pattern = Pattern.compile(naredbaKlijent);
         m = pattern.matcher(komanda);
         if (m.find()) {
             String replacedString = m.group(0).replace("--", "");
-            return "klijent;" + replacedString;
+            if (replacedString.contains("spavanje")) {
+                return "klijent;" + replacedString; //klijent;spavanje
+            }
+            else {
+                return "klijent;zapisi";    //dan je sadržaj iot dat (nema naredbe)
+            }
         }
 
-        return null;
+        return null;    //nije pravilno zadana
     }
 
+    /**
+     * Metoda za kontrolu i pozivanje izvođenja naredbi
+     * @param komanda komanda admina ili klijenta
+     * @param admin <code>Boolean</code> varijabla koja definira je li komanda
+     * adminova ili klijentova
+     * @return
+     */
     private String izvrsiKomandu(String komanda, Boolean admin) {
         if (admin) {
             if (komanda.contains("kreni")) {
@@ -214,7 +218,7 @@ class RadnaDretva extends Thread {
                 return jeKrenuo;
             }
             else if (komanda.contains("pauza")) {
-                String jePauza = RadnaDretva.pauza == false ?  "OK;" : "ERROR 11; Server JE u stanju pauze!";
+                String jePauza = RadnaDretva.pauza == false ? "OK;" : "ERROR 11; Server JE u stanju pauze!";
                 RadnaDretva.pauza = true;
                 return jePauza;
             }
@@ -242,10 +246,17 @@ class RadnaDretva extends Thread {
             if (komanda.contains("spavanje")) {
                 return spavaj(komanda);
             }
+            else {
+                return "Moram spremit u IOT ili ažurirat!";
+            }
         }
-        return "";
     }
 
+    /**
+     * Metoda za učitavanje datoteke, dodavanje propisanog headera (zaglavlja)
+     * @param datoteka datoteka koju je potrebno učitati (iot/evidencija)
+     * @return string vrijednost datoteke + zaglavlje
+     */
     private String deserijalizirajZapisZaSlanje(String datoteka) {
         //TODO kod bin datoteke bi moglo sve past, nakoniot kreiranja probat preko objekta ovoodradit
         String deserijaliziranaEvidencija = "";
@@ -258,15 +269,22 @@ class RadnaDretva extends Thread {
             deserijaliziranaEvidencija = new String(encoded, kodZnakova);
             deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim();
         } catch (IOException ex) {
-            if(datoteka.contains("evidencija"))
-                    deserijaliziranaEvidencija = "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
-            else
+            if (datoteka.contains("evidencija")) {
+                deserijaliziranaEvidencija = "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
+            }
+            else {
                 deserijaliziranaEvidencija = "ERROR 16; Doslo je do greske pri dohvacanju datoteke IOT uređaja!";
+            }
         }
 
         return deserijaliziranaEvidencija;
     }
 
+    /**
+     * Metoda za pokretanje spavanja zadanog kod klijenta
+     * @param komanda komanda s naredbom za spavanje
+     * @return poruka (greška ili OK)
+     */
     private String spavaj(String komanda) {
         String regex = "(600|[1-5]?[0-9]?[0-9]{1})";
         Pattern pattern = Pattern.compile(regex);

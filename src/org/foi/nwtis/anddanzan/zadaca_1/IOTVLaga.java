@@ -7,7 +7,6 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje vlage zraka
- *
  * @author Andrea
  */
 public class IOTVLaga extends IOT {
@@ -16,7 +15,6 @@ public class IOTVLaga extends IOT {
 
     /**
      * Konstruktor
-     *
      * @param id identifikator uređaja
      * @param lokacija lokacija uređaja
      * @param vlaga izmjerena vlaga zraka

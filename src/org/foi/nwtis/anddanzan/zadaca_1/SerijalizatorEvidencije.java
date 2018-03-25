@@ -20,7 +20,7 @@ class SerijalizatorEvidencije extends Thread{
     private boolean radiDok = true;
 
     /**
-     *  Konstruktor
+     * Konstruktor
      * @param nazivDretve ime dretve s rednim brojem
      * @param konf objekt učitane konfiguracije
      */
@@ -39,7 +39,7 @@ class SerijalizatorEvidencije extends Thread{
     }
 
     /**
-     * Thread metoda
+     * Dretva koja konstantno serijalizira objekt tipa <code>Evidencije</code>
      */
     @Override
     public void run() {

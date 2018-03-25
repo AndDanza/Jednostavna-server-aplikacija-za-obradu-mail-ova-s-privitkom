@@ -1,9 +1,6 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import java.beans.Statement;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,14 +8,12 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nwtis.anddanzan.konfiguracije.KonfiguracijaJSON;
 
 /**
  * Klasa za IOT uređaje za koje se pohranjuju podaci
- *
  * @author Andrea
  */
 public abstract class IOT implements Serializable, InterfaceIOT {
@@ -86,6 +81,10 @@ public abstract class IOT implements Serializable, InterfaceIOT {
     }
 
     //deserijalizacija IOT-a za slanje i učitavanje
+    /**
+     * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
+     * @param datoteka 
+     */
     public static void pohraniPodatke(String datoteka) {
         try (FileWriter file = new FileWriter(datoteka)) {
             String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(IOT.uredajiIOT);
@@ -96,6 +95,10 @@ public abstract class IOT implements Serializable, InterfaceIOT {
     }
     
     //deserijalizacija IOT-a za slanje i učitavanje
+    /**
+     * Metoda za učitavanje podataka o IOT uređajima te punjenje lise onjekata IOT uređaja
+     * @param datoteka 
+     */
     public static void ucitajPodatke(String datoteka) {
         try (FileReader file = new FileReader(datoteka)) {
             StringBuffer stringBuffer = new StringBuffer();

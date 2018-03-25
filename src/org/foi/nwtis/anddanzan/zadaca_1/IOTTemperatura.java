@@ -2,7 +2,6 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje temperature
- *
  * @author Andrea
  */
 public class IOTTemperatura extends IOT {
@@ -11,7 +10,6 @@ public class IOTTemperatura extends IOT {
 
     /**
      * Konstruktor
-     *
      * @param id identifikator uređaja
      * @param lokacija lokacija uređaja
      * @param tempertatura izmjerena temeperatura
@@ -39,6 +37,10 @@ public class IOTTemperatura extends IOT {
         this.temperatura = temperatura;
     }
 
+    /**
+     * Metoda propisana sučeljem <code>InterfaceIOT</code>
+     * @return String vrijednost vrijednosti mjerenja
+     */
     @Override
     public String vrijednostMjerenja() {
         return String.valueOf(this.temperatura);

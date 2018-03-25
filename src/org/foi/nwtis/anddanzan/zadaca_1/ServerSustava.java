@@ -41,7 +41,7 @@ public class ServerSustava {
         try {
             Konfiguracija konf = KonfiguracijaApstraktna.preuzmiKonfiguraciju(args[0]);
             ServerSustava serverSustava = new ServerSustava();
-            
+
 //            IOT uredaj = new IOTTemperatura(1, "Pula", 15, System.currentTimeMillis());
 //            IOT.uredajiIOT.add(uredaj);
 //            uredaj = new IOTVLaga(2, "Varaždin", 15, System.currentTimeMillis());
@@ -52,20 +52,24 @@ public class ServerSustava {
 //            for (IOT arg : IOT.uredajiIOT) {
 //                System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
 //            }
-            
             IOT.ucitajPodatke(konf.dajPostavku("datoteka.iot.zapisa"));
-            
+
             for (IOT arg : IOT.uredajiIOT) {
                 System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
             }
-            
+
             serverSustava.pokreniPosluzitelj(konf);
-            
+
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
             System.out.println(ex.getMessage());
         }
     }
 
+    /**
+     * Metoda za pokretanje servera
+     * @param konf konfiguracijska datoteka učitana u objekt
+     * <code>Konfiguracija</code> (koristi Properties i ime datoteke)
+     */
     private void pokreniPosluzitelj(Konfiguracija konf) {
         int port = Integer.parseInt(konf.dajPostavku("port"));
         int maxBrZahtjevaCekanje = Integer.parseInt(konf.dajPostavku("max.broj.zahtjeva.cekanje"));
@@ -85,7 +89,6 @@ public class ServerSustava {
         }
 
         //TODO instanciranje objekta za IOT uređaj - potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
-        
         SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
         serijalizatorEvid.start();
         try {
@@ -96,9 +99,10 @@ public class ServerSustava {
                 System.out.println("Korisnik se spojio!");
 
                 //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
-                ServerSustava.brojacDretvi = Thread.activeCount() - 2;
                 //Smanji broj aktivnih radnih dretvi kod servera sustava (-2 jer računa glavnu dretvu, a i brojanje kreće od 0)
-
+                ServerSustava.brojacDretvi = Thread.activeCount() - 2;
+                
+                //6bitni redni broj dretve
                 if (brojacDretvi >= 64) {
                     brojacDretvi = 0;
                 }
@@ -145,6 +149,7 @@ public class ServerSustava {
 
     /**
      * Metoda za primanje zahtjeva klijenta (komande) kroz socket pomoću <code>InputStream-a</code>
+     *
      * @param socket Kreirani socket za korisnike
      * @return string zahtjeva korisnika
      */
@@ -167,7 +172,7 @@ public class ServerSustava {
         } catch (IOException ex) {
             Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return stringBuffer.toString();
     }
 }

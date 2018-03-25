@@ -33,7 +33,7 @@ public class Evidencija implements Serializable {
     }
 
     /**
-     * KOnstruktor bez argumenata 
+     * Konstruktor bez argumenata 
      */
     public Evidencija() {
     }
