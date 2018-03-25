@@ -1,15 +1,8 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
