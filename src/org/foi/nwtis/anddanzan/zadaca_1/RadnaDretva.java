@@ -187,7 +187,7 @@ class RadnaDretva extends Thread {
      */
     private String provjeriNaredbu(String komanda) {
         String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
-        String naredbaKlijent = "(--spavanje) (600|[1-5]?[0-9]?[0-9]{1})|(([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1}";
+        String naredbaKlijent = "(--spavanje) (600|[1-5]?[0-9]?[0-9]{1})|\\[\\{";
 
         Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
