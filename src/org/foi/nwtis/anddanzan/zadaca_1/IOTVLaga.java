@@ -5,13 +5,17 @@
  */
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje vlage zraka
  * @author Andrea
  */
-public class IOTVLaga extends IOT {
+public class IOTVLaga implements InterfaceIOT{
 
     int vlaga;
+    String lokacija;
+    long vrijemeMilisekunde;
 
     /**
      * Konstruktor za instanciranje novog IOT uređaja
@@ -20,50 +24,78 @@ public class IOTVLaga extends IOT {
      * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
      */
     public IOTVLaga(String lokacija, int vlaga, long vrijemeMjerenja) {
-        this.id = IOT.brojac++;
         this.lokacija = lokacija;
         this.vlaga = vlaga;
         this.vrijemeMilisekunde = vrijemeMjerenja;
-    }
-    
-    /**
-     * Konstruktor za instanciranje postojećeg IOT uređaja
-     * @param id identifikator uređaja
-     * @param lokacija lokacija uređaja
-     * @param vlaga izmjerena vlaga zraka
-     * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
-     */
-    public IOTVLaga(int id, String lokacija, int vlaga, long vrijemeMjerenja) {
-        this.id = id;
-        this.lokacija = lokacija;
-        this.vlaga = vlaga;
-        this.vrijemeMilisekunde = vrijemeMjerenja;
-        IOT.brojac++;
     }
 
+    /**
+     * Setter za postavljanje nove lokacije u varijablu klase
+     *
+     * @param lokacija lokacija za pohranu u varijablu klase
+     */
+    @Override
+    public void postaviLokaciju(String lokacija) {
+        this.lokacija = lokacija;
+    }
+
+    /**
+     * Getter za dohvaćanje lokacije
+     *
+     * @return vraća string vrijednost lokacije IOT uređaja
+     */
+    @Override
+    public String dohvatiLokaciju() {
+        return lokacija;
+    }
+
+    /**
+     * Setter za postavljanje novog vremena mjerenja u varijablu klase
+     *
+     * @param vrijeme vrijeme u milisekundama za zapisu u varijablu klase
+     */
+    @Override
+    public void postaviVrijemeMilisekunde(long vrijeme) {
+        this.vrijemeMilisekunde = vrijeme;
+    }
+
+    /**
+     * Getter za dohvaćanje vremena mjerenja u milisekundama
+     *
+     * @return vrijeme u milisekundama tipa <code>long</code>
+     */
+    @Override
+    public long dohvatiVrijemeMilisekunde() {
+        return vrijemeMilisekunde;
+    }
+
+    /**
+     * Getter za dohvaćanje vremena mjerenja u obliku datuma
+     *
+     * @return vrijeme u milisekundama tipa <code>string</code>
+     */
+    @Override
+    public String dohvatiVrijemeMjerenjaDatum() {
+        String timeString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS").format(this.vrijemeMilisekunde);
+        return timeString;
+    }
+    
     /**
      * Getter za dohvaćanje vlage zraka
      * @return vraća <code>int</code> varijablu s vrijednosti temeprature
      */
-    public int dohvatiVlagu() {
-        return vlaga;
+    @Override
+    public String dohvatiVrijednostMjerenja() {
+        return Integer.toString(this.vlaga);
     }
-
+    
     /**
      * Setter za postavljanje nove vrijednosti vlage zraka
-     * @param vlaga nova mjerenja vlage u zraku za pohranu u klasu
-     */
-    public void postaviVlagu(int vlaga) {
-        this.vlaga = vlaga;
-    }
-
-    /**
-     * Metoda InterfeceIOT koja definira vraćanje vrijednosti mjerenja svakog IOT uređaja
-     * @return string vrijednost mjerenja
+     * @param mjerenje  nova mjerenja vlage u zraku za pohranu u klasu
      */
     @Override
-    public String vrijednostMjerenja() {
-        return String.valueOf(this.vlaga);
+    public void postaviVrijednostMjerenja(int mjerenje) {
+        this.vlaga = mjerenje;
     }
 
 }

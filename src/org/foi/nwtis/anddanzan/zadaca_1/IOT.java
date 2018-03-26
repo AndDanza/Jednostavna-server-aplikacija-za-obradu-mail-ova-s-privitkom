@@ -1,33 +1,65 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
-import org.nwtis.anddanzan.konfiguracije.KonfiguracijaJSON;
 
 /**
  * Klasa za IOT uređaje za koje se pohranjuju podaci
  *
  * @author Andrea
  */
-public abstract class IOT implements Serializable, InterfaceIOT {
+public class IOT implements Serializable{
 
-    public static int brojac = 0;
     int id;
-    String lokacija;
-    long vrijemeMilisekunde;
-    public static List<IOT> uredajiIOT = null;
+    List<InterfaceIOT> mjerenjaUredaja = null;
 
+    public IOT(int id) {
+        this.id = id;
+        mjerenjaUredaja = new ArrayList<>();
+    }
+
+    /**
+     * Getter za dohvaćanje liste objekata s podacima o mjerenju
+     *
+     * @return vraća listu tipa <code>InterfaceIOT</code> listu s objektima određenog iot uređaja
+     */
+    public List<InterfaceIOT> dohvatiMjerenjaUredaja() {
+        return mjerenjaUredaja;
+    }
+
+    /**
+     * Setter za punjenje liste objekata IOT uređaja
+     *
+     * @param mjerenjaUredaja lista objekata s podacima koje je potrebo pohraniti
+     */
+    public void postaviMjerenjaUredaja(List<InterfaceIOT> mjerenjaUredaja) {
+        this.mjerenjaUredaja = mjerenjaUredaja;
+    }
+    
+    /**
+     * Metoda za dodavanje pojedinog objekta IOT mjerenja
+     *
+     * @param mjerenjeUredaja objekat s podacima koje je potrebo pohraniti
+     */
+    public void dodajMjerenjeUredaja(InterfaceIOT mjerenjeUredaja) {
+        this.mjerenjaUredaja.add(mjerenjeUredaja);
+    }
+    
+    /**
+     * Metoda za azuriranje zapisa objekta s podacima
+     *
+     * @param mjerenjeUredaja objekat s podacima koji je potrebno pohraniti na mjesto postojećeg
+     */
+    public void azurirajMjerenjeUredaja(InterfaceIOT mjerenjeUredaja) {
+        for(InterfaceIOT obj : this.mjerenjaUredaja)
+            if(obj.dohvatiVrijemeMilisekunde() == mjerenjeUredaja.dohvatiVrijemeMilisekunde())
+                this.mjerenjaUredaja.remove(obj);
+        
+        this.mjerenjaUredaja.add(mjerenjeUredaja);
+    }
+    
+    
     /**
      * Getter za dohvaćanje id-a
      *
@@ -47,80 +79,20 @@ public abstract class IOT implements Serializable, InterfaceIOT {
     }
 
     /**
-     * Setter za postavljanje nove lokacije u varijablu klase
-     *
-     * @param lokacija lokacija za pohranu u varijablu klase
-     */
-    public void postaviLokaciju(String lokacija) {
-        this.lokacija = lokacija;
-    }
-
-    /**
-     * Getter za dohvaćanje lokacije
-     *
-     * @return vraća string vrijednost lokacije IOT uređaja
-     */
-    public String dohvatiLokaciju() {
-        return lokacija;
-    }
-
-    /**
-     * Setter za postavljanje novog vremena mjerenja u varijablu klase
-     *
-     * @param vrijeme vrijeme u milisekundama za zapisu u varijablu klase
-     */
-    public void postaviVrijemeMilisekunde(long vrijeme) {
-        this.vrijemeMilisekunde = vrijeme;
-    }
-
-    /**
-     * Getter za dohvaćanje vremena mjerenja u milisekundama
-     *
-     * @return vrijeme u milisekundama tipa <code>long</code>
-     */
-    public long dohvatiVrijemeMilisekunde() {
-        return vrijemeMilisekunde;
-    }
-
-    /**
-     * Getter za dohvaćanje vremena mjerenja u obliku datuma
-     *
-     * @return vrijeme u milisekundama tipa <code>string</code>
-     */
-    public String dohvatiVrijemeMjerenjaDatum() {
-        String timeString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS").format(this.vrijemeMilisekunde);
-        return timeString;
-    }
-
-    //deserijalizacija IOT-a za slanje i učitavanje
-    /**
-     * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
-     *
-     * @param datoteka
-     */
-    public static String serijalizirajIOT(Konfiguracija konf) {
-        String json = new GsonBuilder().setPrettyPrinting().create().toJson(IOT.uredajiIOT);
-        json = json.replace("\\\"", "");
-        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
-        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
-        header += json.getBytes().length + "<CRLF>\n";
-        return header + json+ ";";
-    }
-
-    /**
      * Metoda za parsiranje stringa json-a i punjenje liste IOT uređaja
      * objektima
      *
      * @param result json objekt prikazan u varijabli tipa string
      */
-    public static String popuniListuUredaja(String result) {
+    public String popuniListuUredaja(String result) {
+        /*
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(result).getAsJsonObject();
 
         String lokacija = json.get("lokacija").toString();
         int id = Integer.valueOf(json.get("id").toString());
         long vrijeme = Long.valueOf(json.get("vrijemeMilisekunde").toString());
-        IOT iotUredaj = null;
+        InterfaceIOT iotUredaj = null;
 
         if (json.has("temperatura")) {
             int vrijednost = Integer.valueOf(json.get("temperatura").toString());
@@ -158,6 +130,7 @@ public abstract class IOT implements Serializable, InterfaceIOT {
             }
         }
 
+*/
         return "ERROR 21; Sadržaj IOT datoteke nije valjan";
 
     }

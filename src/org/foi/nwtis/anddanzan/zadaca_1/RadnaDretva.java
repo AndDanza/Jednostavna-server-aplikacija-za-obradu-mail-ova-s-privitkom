@@ -241,7 +241,7 @@ class RadnaDretva extends Thread {
                 return deserijalizirajZapisZaSlanje("datoteka.evidencije.rada");
             }
             else {
-                return IOT.serijalizirajIOT(this.konf);
+                return ServerSustava.serijalizirajIOT(this.konf);
             }
         }
         else {
@@ -249,7 +249,7 @@ class RadnaDretva extends Thread {
                 return spavaj(komanda);
             }
             else {
-                return IOT.popuniListuUredaja(komanda);
+                return "TO DO"; //IOT.popuniListuUredaja(komanda);
             }
         }
     }

@@ -1,11 +1,15 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
@@ -15,6 +19,7 @@ import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
  * Klasa servera
+ *
  * @author Andrea
  */
 public class ServerSustava {
@@ -31,6 +36,11 @@ public class ServerSustava {
     public static int brojacDretvi = 0;
 
     /**
+     * Statična lista objekata za zapis podataka s IOT uređaja
+     */
+    public static List<IOT> uredajiIOT = null;
+
+    /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -42,6 +52,37 @@ public class ServerSustava {
         try {
             Konfiguracija konf = KonfiguracijaApstraktna.preuzmiKonfiguraciju(args[0]);
             ServerSustava serverSustava = new ServerSustava();
+
+            //samo za testiranje
+            Random rand = new Random();
+            uredajiIOT = new ArrayList<>();
+            IOT objektIOT = new IOT(1);
+            IOTTemperatura temp = null;
+            for (int i = 0; i < 5; i++) {
+                int n = rand.nextInt(30) + 1;
+                temp = new IOTTemperatura("Pula", n, System.currentTimeMillis() + n);
+                objektIOT.dodajMjerenjeUredaja(temp);
+            }
+            uredajiIOT.add(objektIOT);
+
+            objektIOT = new IOT(2);
+            IOTVjetar vjetar = null;
+            for (int i = 0; i < 5; i++) {
+                int n = rand.nextInt(150) + 1;
+                vjetar = new IOTVjetar("Varaždin", n, System.currentTimeMillis() + n);
+                objektIOT.dodajMjerenjeUredaja(vjetar);
+            }
+            uredajiIOT.add(objektIOT);
+
+            objektIOT = new IOT(3);
+            IOTVLaga vlaga = null;
+            for (int i = 0; i < 5; i++) {
+                int n = rand.nextInt(20) + 1;
+                vlaga = new IOTVLaga("Požega", n, System.currentTimeMillis() + n);
+                objektIOT.dodajMjerenjeUredaja(vlaga);
+            }
+            uredajiIOT.add(objektIOT);
+            //samo za testiranje
             serverSustava.pokreniPosluzitelj(konf);
 
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
@@ -51,6 +92,7 @@ public class ServerSustava {
 
     /**
      * Metoda za pokretanje servera
+     *
      * @param konf konfiguracijska datoteka učitana u objekt
      * <code>Konfiguracija</code> (koristi Properties i ime datoteke)
      */
@@ -63,8 +105,8 @@ public class ServerSustava {
         boolean radiDok = true;
 
         //instanciranje liste IOT uređaja
-        IOT.uredajiIOT = new ArrayList<>();
-        
+        //ServerSustava.uredajiIOT = new ArrayList<>();
+
         //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         try {
             Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
@@ -88,7 +130,7 @@ public class ServerSustava {
                 //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
                 //Smanji broj aktivnih radnih dretvi kod servera sustava (-2 jer računa glavnu dretvu, a i brojanje kreće od 0)
                 ServerSustava.brojacDretvi = Thread.activeCount() - 2;
-                
+
                 //6bitni redni broj dretve
                 if (brojacDretvi >= 64) {
                     brojacDretvi = 0;
@@ -120,6 +162,7 @@ public class ServerSustava {
 
     /**
      * Metoda za slanje komande kroz socket pomoću <code>OutputStream-a</code>
+     *
      * @param socket Kreirani socket za korisnike
      * @param poruka string varijabla s odgovorom servera
      */
@@ -135,7 +178,8 @@ public class ServerSustava {
     }
 
     /**
-     * Metoda za primanje zahtjeva klijenta (komande) kroz socket pomoću <code>InputStream-a</code>
+     * Metoda za primanje zahtjeva klijenta (komande) kroz socket pomoću
+     * <code>InputStream-a</code>
      *
      * @param socket Kreirani socket za korisnike
      * @return string zahtjeva korisnika
@@ -161,5 +205,20 @@ public class ServerSustava {
         }
 
         return stringBuffer.toString();
+    }
+
+    //deserijalizacija IOT-a za slanje i učitavanje
+    /**
+     * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
+     *
+     * @param datoteka
+     */
+    public static String serijalizirajIOT(Konfiguracija konf) {
+        String json = new GsonBuilder().setPrettyPrinting().create().toJson(ServerSustava.uredajiIOT);
+        json = json.replace("\\\"", "");
+        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
+        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
+        header += json.getBytes().length + "<CRLF>\n";
+        return header + json + ";";
     }
 }

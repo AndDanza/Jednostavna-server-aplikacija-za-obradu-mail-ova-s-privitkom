@@ -1,12 +1,16 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje temperature
  * @author Andrea
  */
-public class IOTTemperatura extends IOT {
+public class IOTTemperatura implements InterfaceIOT{
 
     int temperatura;
+    String lokacija;
+    long vrijemeMilisekunde;
 
     /**
      * Konstruktor za instanciranje novog IOT uređaja
@@ -15,48 +19,77 @@ public class IOTTemperatura extends IOT {
      * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
      */
     public IOTTemperatura(String lokacija, int tempertatura, long vrijemeMjerenja) {
-        this.id = IOT.brojac++;
         this.lokacija = lokacija;
         this.temperatura = tempertatura;
         this.vrijemeMilisekunde = vrijemeMjerenja;
     }
     
     /**
-     * Konstruktor za instanciranje postojećeg
-     * @param id identifikator uređaja
-     * @param lokacija lokacija uređaja
-     * @param tempertatura izmjerena temeperatura
-     * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
+     * Setter za postavljanje nove lokacije u varijablu klase
+     *
+     * @param lokacija lokacija za pohranu u varijablu klase
      */
-    public IOTTemperatura(int id, String lokacija, int tempertatura, long vrijemeMjerenja) {
-        this.id = id;
+    @Override
+    public void postaviLokaciju(String lokacija) {
         this.lokacija = lokacija;
-        this.temperatura = tempertatura;
-        this.vrijemeMilisekunde = vrijemeMjerenja;
-        IOT.brojac++;
-    }
-    /**
-     * Getter za dohvaćanje temeprature
-     * @return vraća <code>int</code> varijablu s vrijednosti temeprature
-     */
-    public int dohvatiTemperaturu() {
-        return temperatura;
     }
 
     /**
-     * Setter za postavljanje nove vrijednosti temeprature
-     * @param temperatura nova temepratura za pohranu u klasu
+     * Getter za dohvaćanje lokacije
+     *
+     * @return vraća string vrijednost lokacije IOT uređaja
      */
-    public void postaviTemperaturu(int temperatura) {
-        this.temperatura = temperatura;
+    @Override
+    public String dohvatiLokaciju() {
+        return lokacija;
     }
 
     /**
-     * Metoda propisana sučeljem <code>InterfaceIOT</code>
+     * Setter za postavljanje novog vremena mjerenja u varijablu klase
+     *
+     * @param vrijeme vrijeme u milisekundama za zapisu u varijablu klase
+     */
+    @Override
+    public void postaviVrijemeMilisekunde(long vrijeme) {
+        this.vrijemeMilisekunde = vrijeme;
+    }
+
+    /**
+     * Getter za dohvaćanje vremena mjerenja u milisekundama
+     *
+     * @return vrijeme u milisekundama tipa <code>long</code>
+     */
+    @Override
+    public long dohvatiVrijemeMilisekunde() {
+        return vrijemeMilisekunde;
+    }
+
+    /**
+     * Getter za dohvaćanje vremena mjerenja u obliku datuma
+     *
+     * @return vrijeme u milisekundama tipa <code>string</code>
+     */
+    @Override
+    public String dohvatiVrijemeMjerenjaDatum() {
+        String timeString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS").format(this.vrijemeMilisekunde);
+        return timeString;
+    }
+
+    /**
+     * Getter za dohvaćanje vrijednosti mjerenja
      * @return String vrijednost vrijednosti mjerenja
      */
     @Override
-    public String vrijednostMjerenja() {
+    public String dohvatiVrijednostMjerenja() {
         return String.valueOf(this.temperatura);
+    }
+
+    /**
+     * Setter za postavljanje vrijednosti mjerenja
+     * @param mjerenje vrijednost mjerenja za zapisvanje
+     */
+    @Override
+    public void postaviVrijednostMjerenja(int mjerenje) {
+        this.temperatura = mjerenje;
     }
 }
