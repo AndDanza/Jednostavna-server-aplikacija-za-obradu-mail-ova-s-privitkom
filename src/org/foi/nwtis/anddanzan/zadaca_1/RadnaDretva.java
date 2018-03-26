@@ -72,7 +72,6 @@ class RadnaDretva extends Thread {
             odgovorServera = komandaValjana;
         }
         else if (komandaValjana.contains("admin")) {
-
             odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), true);
         }
         else if (komandaValjana.contains("klijent") && !RadnaDretva.pauza) {
@@ -242,7 +241,7 @@ class RadnaDretva extends Thread {
                 return deserijalizirajZapisZaSlanje("datoteka.evidencije.rada");
             }
             else {
-                return "objekt evidencije";
+                return IOT.serijalizirajIOT(this.konf);
             }
         }
         else {
@@ -250,7 +249,6 @@ class RadnaDretva extends Thread {
                 return spavaj(komanda);
             }
             else {
-                System.out.println("komanda: "+komanda);
                 return IOT.popuniListuUredaja(komanda);
             }
         }

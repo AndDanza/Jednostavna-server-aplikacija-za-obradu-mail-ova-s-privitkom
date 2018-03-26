@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 import org.nwtis.anddanzan.konfiguracije.KonfiguracijaJSON;
 
 /**
@@ -97,13 +98,13 @@ public abstract class IOT implements Serializable, InterfaceIOT {
      *
      * @param datoteka
      */
-    public static void pohraniPodatke(String datoteka) {
-        try (FileWriter file = new FileWriter(datoteka)) {
-            String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(IOT.uredajiIOT);
-            file.write(json);
-        } catch (IOException ex) {
-            Logger.getLogger(KonfiguracijaJSON.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public static String serijalizirajIOT(Konfiguracija konf) {
+        String json = new GsonBuilder().setPrettyPrinting().create().toJson(IOT.uredajiIOT);
+        json = json.replace("\\\"", "");
+        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
+        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
+        header += json.getBytes().length + "<CRLF>\n";
+        return header + json+ ";";
     }
 
     /**
@@ -144,6 +145,10 @@ public abstract class IOT implements Serializable, InterfaceIOT {
                         IOT.uredajiIOT.remove(iot);
                         IOT.uredajiIOT.add(iotUredaj);
                         return "OK 21;";
+                    }
+                    else {
+                        IOT.uredajiIOT.add(iotUredaj);
+                        return "OK 20";
                     }
                 }
             }
