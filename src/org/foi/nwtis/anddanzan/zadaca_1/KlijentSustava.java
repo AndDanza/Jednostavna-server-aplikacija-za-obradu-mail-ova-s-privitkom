@@ -23,7 +23,7 @@ public class KlijentSustava extends KorisnikSustava {
         try {
             Socket socket = new Socket(this.adresa, this.port); //adresa i port dobiveni iz args[]
 
-            String regexDat = "((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+            String regexDat = "((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)*)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
             Pattern pattern = Pattern.compile(regexDat);
             Matcher m = pattern.matcher(this.komanda);
 
@@ -34,7 +34,7 @@ public class KlijentSustava extends KorisnikSustava {
                 if (iot.contains("OK; ZN-KODOVI")) {
                     iot = iot.split("\n")[1];
                 }
-                this.komanda = this.komanda + iot;
+                this.komanda = this.komanda + ";" +iot+";";
             }
 
             posaljiKomandu(socket, this.komanda);

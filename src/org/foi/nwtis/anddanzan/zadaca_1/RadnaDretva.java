@@ -10,6 +10,7 @@ import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
  * Dretva koja zaprima iobrađuje zahtjeve korisnika
+ *
  * @author Andrea
  */
 class RadnaDretva extends Thread {
@@ -18,7 +19,8 @@ class RadnaDretva extends Thread {
     private String nazivDretve;
     private Konfiguracija konf;
     /**
-     * Varijabla na razini servera prema kojoj je određeno nalazi li se sustav u stanju pauze ili ne
+     * Varijabla na razini servera prema kojoj je određeno nalazi li se sustav u
+     * stanju pauze ili ne
      */
     public static Boolean pauza = false;
 
@@ -26,6 +28,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Konstruktor
+     *
      * @param socket Socket preko kojeg komuniciraju server i korisnik
      * @param nazivDretve ime dretve "anddanzan-i", (i broj od 0 do 63)
      * @param konf podac učitani iz konfiguracije
@@ -63,7 +66,7 @@ class RadnaDretva extends Thread {
         //Provjeriti dozvoljene komande 
         String komandaValjana = provjeriKomandu(zahtjev);
         String odgovorServera = "";
-
+        
         //ni admin ni klijent = ERROR ...
         if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
             odgovorServera = komandaValjana;
@@ -99,6 +102,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Metoda za validaciju ulazne komande korisnika
+     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (zahtjev je valjana) ili false (zahtjev nije dobro zadana)
      */
@@ -144,6 +148,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Provjera unosa korisničkog imena i lozinke u komandi korištenjem regex-a
+     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (lozinka i korisničko ime pravilno uneseni) ili false
      * (nepravilno unesena lozinka i korisničko ime)
@@ -173,13 +178,14 @@ class RadnaDretva extends Thread {
 
     /**
      * Provjera unosa naredbe serveru u komandi korištenjem regex-a
+     *
      * @param komanda string zahtjev zaprimljena kroz socket
      * @return true (naredba pravilno uneseni) ili false (nepravilno unesena
      * naredba)
      */
     private String provjeriNaredbu(String komanda) {
-        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
-        String naredbaKlijent = "(--spavanje) (600|[1-5]?[0-9]?[0-9]{1})|\\[\\{";
+        String naredbaAdmin = "\\-\\-(kreni)|\\-\\-(zaustavi)|\\-\\-(pauza)|\\-\\-(stanje)|\\-\\-(evidencija) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)*)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})|\\-\\-(iot) ((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)*)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+        String naredbaKlijent = "(--spavanje) (600|[1-5]?[0-9]?[0-9]{1})|\\{";
 
         Pattern pattern = Pattern.compile(naredbaAdmin);
         Matcher m = pattern.matcher(komanda);
@@ -196,7 +202,7 @@ class RadnaDretva extends Thread {
                 return "klijent;" + replacedString; //klijent;spavanje
             }
             else {
-                return "klijent;zapisi";    //dan je sadržaj iot dat (nema naredbe)
+                return "klijent;"+komanda.substring(komanda.indexOf(";")+1, komanda.length()-1);    //dan je sadržaj iot dat (nema naredbe)
             }
         }
 
@@ -205,6 +211,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Metoda za kontrolu i pozivanje izvođenja naredbi
+     *
      * @param komanda komanda admina ili klijenta
      * @param admin <code>Boolean</code> varijabla koja definira je li komanda
      * adminova ili klijentova
@@ -213,23 +220,19 @@ class RadnaDretva extends Thread {
     private String izvrsiKomandu(String komanda, Boolean admin) {
         if (admin) {
             if (komanda.contains("kreni")) {
-                String jeKrenuo = RadnaDretva.pauza == false ? "ERROR 12; Server NIJE u stanju pauze!" : "OK;";
-                RadnaDretva.pauza = false;
-                return jeKrenuo;
+                return promjenaStanjaServera("kreni");
             }
             else if (komanda.contains("pauza")) {
-                String jePauza = RadnaDretva.pauza == false ? "OK;" : "ERROR 11; Server JE u stanju pauze!";
-                RadnaDretva.pauza = true;
-                return jePauza;
+                return promjenaStanjaServera("pauza");
             }
-            else if (komanda.contains("stanje")) {
+                else if (komanda.contains("stanje")) {
                 if (RadnaDretva.pauza) {
                     return "OK;0";
                 }
                 else {
                     return "OK;1";
                 }
-            }
+                    }
             //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
             else if (komanda.contains("zaustavi")) {
                 return "OK;zaustavi";
@@ -239,7 +242,7 @@ class RadnaDretva extends Thread {
                 return deserijalizirajZapisZaSlanje("datoteka.evidencije.rada");
             }
             else {
-                return deserijalizirajZapisZaSlanje("datoteka.iot.zapisa");
+                return "objekt evidencije";
             }
         }
         else {
@@ -247,13 +250,16 @@ class RadnaDretva extends Thread {
                 return spavaj(komanda);
             }
             else {
-                return "Moram spremit u IOT ili ažurirat!";
+                System.out.println("komanda: "+komanda);
+                return IOT.popuniListuUredaja(komanda);
             }
         }
     }
 
     /**
      * Metoda za učitavanje datoteke, dodavanje propisanog headera (zaglavlja)
+     * ili poruke pogreške
+     *
      * @param datoteka datoteka koju je potrebno učitati (iot/evidencija)
      * @return string vrijednost datoteke + zaglavlje
      */
@@ -269,12 +275,7 @@ class RadnaDretva extends Thread {
             deserijaliziranaEvidencija = new String(encoded, kodZnakova);
             deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim();
         } catch (IOException ex) {
-            if (datoteka.contains("evidencija")) {
-                deserijaliziranaEvidencija = "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
-            }
-            else {
-                deserijaliziranaEvidencija = "ERROR 16; Doslo je do greske pri dohvacanju datoteke IOT uređaja!";
-            }
+            return "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
         }
 
         return deserijaliziranaEvidencija;
@@ -282,6 +283,7 @@ class RadnaDretva extends Thread {
 
     /**
      * Metoda za pokretanje spavanja zadanog kod klijenta
+     *
      * @param komanda komanda s naredbom za spavanje
      * @return poruka (greška ili OK)
      */
@@ -298,5 +300,20 @@ class RadnaDretva extends Thread {
             }
         }
         return "OK;";
+    }
+
+    private String promjenaStanjaServera(String stanje) {
+        String odgovor = "";
+
+        if (stanje.equals("kreni")) {
+            odgovor = RadnaDretva.pauza == false ? "ERROR 12; Server NIJE u stanju pauze!" : "OK;";
+            RadnaDretva.pauza = false;
+        }
+        else if (stanje.equals("pauza")) {
+            odgovor = RadnaDretva.pauza == false ? "OK;" : "ERROR 11; Server JE u stanju pauze!";
+            RadnaDretva.pauza = true;
+        }
+
+        return odgovor;
     }
 }

@@ -1,18 +1,14 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -142,20 +138,21 @@ public abstract class IOT implements Serializable, InterfaceIOT {
         }
 
         if (iotUredaj != null) {
-            for (IOT iot : IOT.uredajiIOT) {
-                if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
-                    IOT.uredajiIOT.remove(iot);
-                    IOT.uredajiIOT.add(iotUredaj);
-                    return "OK 21;";
-                }
-
-                else {
-                    IOT.uredajiIOT.add(iotUredaj);
-                    return "OK 20";
+            if (!IOT.uredajiIOT.isEmpty()) {
+                for (IOT iot : IOT.uredajiIOT) {
+                    if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
+                        IOT.uredajiIOT.remove(iot);
+                        IOT.uredajiIOT.add(iotUredaj);
+                        return "OK 21;";
+                    }
                 }
             }
+            else {
+                IOT.uredajiIOT.add(iotUredaj);
+                return "OK 20";
+            }
         }
-        
+
         return "ERROR 21; Sadržaj IOT datoteke nije valjan";
 
     }

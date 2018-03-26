@@ -33,7 +33,7 @@ public class AdministratorSustava extends KorisnikSustava {
             System.out.println("Odgovor: " + odgovor);
             
             if (odgovor.contains("OK; ZN-KODOVI")) {
-                String regexDat = "((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)?)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
+                String regexDat = "((([A-Za-z]:\\\\)?([A-Za-z0-9]+\\\\)*)?([A-Za-z0-9]+\\.(txt|xml|json|bin|TXT|XML|JSON|BIN)){1})";
                 Pattern pattern = Pattern.compile(regexDat);
                 Matcher m = pattern.matcher(this.komanda);
 
