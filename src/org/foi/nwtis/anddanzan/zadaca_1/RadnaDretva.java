@@ -292,7 +292,7 @@ class RadnaDretva extends Thread {
         if (m.find()) {
             int spavaj = Integer.valueOf(m.group(0));
             try {
-                Thread.sleep(spavaj);
+                Thread.sleep(spavaj*1000);  //secu milisek
             } catch (InterruptedException ex) {
                 return "ERROR 22; Spavanje dretve nije uspjelo";
             }

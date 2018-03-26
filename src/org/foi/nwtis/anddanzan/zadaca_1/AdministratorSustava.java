@@ -1,11 +1,9 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +39,16 @@ public class AdministratorSustava extends KorisnikSustava {
 
                 if (m.find()) {
                     String datoteka = m.group(0);
+                    regexDat = "ZN-KODOVI UTF-8;";
+                    pattern = Pattern.compile(regexDat);
+                    m = pattern.matcher(odgovor);
+                    //dohvaćanje i postavljanje charseta
+                    if(m.find()){
+                        String kod = m.group(0).split(" ")[1].replace(";", ""); //ZN-KODOVI UTF-8; podjeli po razmku, uzmi desni dio i ukloni ;
+                        Charset charset = Charset.forName(kod);
+                        odgovor = new String(odgovor.getBytes(), charset);
+                    }
+                    
                     FileWriter file = new FileWriter(datoteka);
                     file.write(odgovor);
                     file.flush();

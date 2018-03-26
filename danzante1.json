@@ -1,1 +1,92 @@
-{"temperatura": 15,"id": 2,"lokacija": "Pula","vrijemeMilisekunde": 1522004284012}
+[
+  {
+    "id": 1,
+    "mjerenjaUredaja": [
+      {
+        "temperatura": 6,
+        "lokacija": "Pula",
+        "vrijemeMilisekunde": 1522081901003
+      },
+      {
+        "temperatura": 20,
+        "lokacija": "Pula",
+        "vrijemeMilisekunde": 1522081901017
+      },
+      {
+        "temperatura": 17,
+        "lokacija": "Pula",
+        "vrijemeMilisekunde": 1522081901014
+      },
+      {
+        "temperatura": 1,
+        "lokacija": "Pula",
+        "vrijemeMilisekunde": 1522081900998
+      },
+      {
+        "temperatura": 2,
+        "lokacija": "Pula",
+        "vrijemeMilisekunde": 1522081900999
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "mjerenjaUredaja": [
+      {
+        "brzinaVjetra": 98,
+        "lokacija": "VaraÅ¾din",
+        "vrijemeMilisekunde": 1522081901096
+      },
+      {
+        "brzinaVjetra": 16,
+        "lokacija": "VaraÅ¾din",
+        "vrijemeMilisekunde": 1522081901014
+      },
+      {
+        "brzinaVjetra": 87,
+        "lokacija": "VaraÅ¾din",
+        "vrijemeMilisekunde": 1522081901085
+      },
+      {
+        "brzinaVjetra": 31,
+        "lokacija": "VaraÅ¾din",
+        "vrijemeMilisekunde": 1522081901029
+      },
+      {
+        "brzinaVjetra": 85,
+        "lokacija": "VaraÅ¾din",
+        "vrijemeMilisekunde": 1522081901083
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "mjerenjaUredaja": [
+      {
+        "vlaga": 14,
+        "lokacija": "PoÅ¾ega",
+        "vrijemeMilisekunde": 1522081901012
+      },
+      {
+        "vlaga": 17,
+        "lokacija": "PoÅ¾ega",
+        "vrijemeMilisekunde": 1522081901015
+      },
+      {
+        "vlaga": 9,
+        "lokacija": "PoÅ¾ega",
+        "vrijemeMilisekunde": 1522081901007
+      },
+      {
+        "vlaga": 16,
+        "lokacija": "PoÅ¾ega",
+        "vrijemeMilisekunde": 1522081901014
+      },
+      {
+        "vlaga": 19,
+        "lokacija": "PoÅ¾ega",
+        "vrijemeMilisekunde": 1522081901017
+      }
+    ]
+  }
+];

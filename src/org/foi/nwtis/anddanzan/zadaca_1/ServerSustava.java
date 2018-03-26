@@ -106,7 +106,6 @@ public class ServerSustava {
 
         //instanciranje liste IOT uređaja
         //ServerSustava.uredajiIOT = new ArrayList<>();
-
         //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         try {
             Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
@@ -215,10 +214,68 @@ public class ServerSustava {
      */
     public static String serijalizirajIOT(Konfiguracija konf) {
         String json = new GsonBuilder().setPrettyPrinting().create().toJson(ServerSustava.uredajiIOT);
-        json = json.replace("\\\"", "");
+        //json = json.replace("\\\"", "");
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
         header += json.getBytes().length + "<CRLF>\n";
         return header + json + ";";
     }
+
+    /**
+     * Metoda za parsiranje stringa json-a i punjenje liste IOT uređaja
+     * objektima
+     *
+     * @param result json objekt prikazan u varijabli tipa string
+     */
+    public String popuniListuUredaja(String result) {
+        /*
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(result).getAsJsonObject();
+
+        String lokacija = json.get("lokacija").toString();
+        int id = Integer.valueOf(json.get("id").toString());
+        long vrijeme = Long.valueOf(json.get("vrijemeMilisekunde").toString());
+        InterfaceIOT iotUredaj = null;
+
+        if (json.has("temperatura")) {
+            int vrijednost = Integer.valueOf(json.get("temperatura").toString());
+
+            iotUredaj = new IOTTemperatura(id, lokacija, vrijednost, vrijeme);
+        }
+        else if (json.has("vlaga")) {
+            int vrijednost = Integer.valueOf(json.get("vlaga").toString());
+
+            iotUredaj = new IOTVLaga(id, lokacija, vrijednost, vrijeme);
+        }
+        else if (json.has("brzinaVjetra")) {
+            int vrijednost = Integer.valueOf(json.get("brzinaVjetra").toString());
+
+            iotUredaj = new IOTVjetar(id, lokacija, vrijednost, vrijeme);
+        }
+
+        if (iotUredaj != null) {
+            if (!IOT.uredajiIOT.isEmpty()) {
+                for (IOT iot : IOT.uredajiIOT) {
+                    if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
+                        IOT.uredajiIOT.remove(iot);
+                        IOT.uredajiIOT.add(iotUredaj);
+                        return "OK 21;";
+                    }
+                    else {
+                        IOT.uredajiIOT.add(iotUredaj);
+                        return "OK 20";
+                    }
+                }
+            }
+            else {
+                IOT.uredajiIOT.add(iotUredaj);
+                return "OK 20";
+            }
+        }
+
+         */
+        return "ERROR 21; Sadržaj IOT datoteke nije valjan";
+
+    }
+
 }
