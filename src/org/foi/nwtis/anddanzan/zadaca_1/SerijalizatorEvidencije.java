@@ -54,17 +54,19 @@ class SerijalizatorEvidencije extends Thread {
             System.out.println("Dretva " + this.nazivDretve + " krenula u: " + timeString);
 
             try {
-                //pozvati objekt evidencijaProp rada iz ServerSustava 
-                Evidencija evidencijaZaPohranu = ServerSustava.evidencija;
-                Properties evidencijaProp = evidencijaZaPohranu.vratiPropertiesEvidencije();
-                //serijalizirat evidenciju u datoteku
-                Konfiguracija pohranaEvidencije = KonfiguracijaApstraktna.kreirajKonfiguraciju(nazivDatEvidencije);
-                pohranaEvidencije.kopirajKonfiguraciju(evidencijaProp);
-                pohranaEvidencije.spremiKonfiguraciju();
+                synchronized (ServerSustava.evidencija) {
+                    //pozvati objekt evidencijaProp rada iz ServerSustava 
+                    Evidencija evidencijaZaPohranu = ServerSustava.evidencija;
+                    Properties evidencijaProp = evidencijaZaPohranu.vratiPropertiesEvidencije();
+                    //serijalizirat evidenciju u datoteku
+                    Konfiguracija pohranaEvidencije = KonfiguracijaApstraktna.kreirajKonfiguraciju(nazivDatEvidencije);
+                    pohranaEvidencije.kopirajKonfiguraciju(evidencijaProp);
+                    pohranaEvidencije.spremiKonfiguraciju();
 
-                //ažuriraj evidenciju brojObavljenihSerijalizacija
-                long brSerijalizacija = ServerSustava.evidencija.getBrojObavljenihSerijalizacija();
-                ServerSustava.evidencija.setBrojObavljenihSerijalizacija(++brSerijalizacija);
+                    //ažuriraj evidenciju brojObavljenihSerijalizacija
+                    long brSerijalizacija = ServerSustava.evidencija.getBrojObavljenihSerijalizacija();
+                    ServerSustava.evidencija.setBrojObavljenihSerijalizacija(++brSerijalizacija);
+                }
             } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
                 System.out.println(ex.getMessage());
             }

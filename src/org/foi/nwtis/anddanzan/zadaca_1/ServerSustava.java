@@ -13,7 +13,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
@@ -79,7 +78,7 @@ public class ServerSustava {
 
         //instanciranje liste IOT uređaja
         ServerSustava.uredajiIOT = new ArrayList<>();
-        
+
         //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         try {
             Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
@@ -116,8 +115,10 @@ public class ServerSustava {
                     ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
 
                     //Ažuriraj evidenciju rada
-                    long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();
-                    ServerSustava.evidencija.setBrojPrekinutihZahtjeva(++prekinutiZahtjevi);
+                    synchronized (ServerSustava.evidencija) {
+                        long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();
+                        ServerSustava.evidencija.setBrojPrekinutihZahtjeva(++prekinutiZahtjevi);
+                    }
 
                 }
                 else {
@@ -125,8 +126,10 @@ public class ServerSustava {
                     radnaDretva.start();
 
                     //ukupan broj dretvi
-                    long brDretvi = ServerSustava.evidencija.getBrojUspjesnihZahtjeva();
-                    ServerSustava.evidencija.setBrojUspjesnihZahtjeva(++brDretvi);
+                    synchronized (ServerSustava.evidencija) {
+                        long brDretvi = ServerSustava.evidencija.getBrojUspjesnihZahtjeva();
+                        ServerSustava.evidencija.setBrojUspjesnihZahtjeva(++brDretvi);
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -184,11 +187,13 @@ public class ServerSustava {
     //deserijalizacija IOT-a za slanje i učitavanje
     /**
      * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
-     *
-     * @param datoteka
      */
     public static String serijalizirajIOT(Konfiguracija konf) {
-        String json = new GsonBuilder().setPrettyPrinting().create().toJson(ServerSustava.uredajiIOT);
+        Gson builder = new GsonBuilder().setPrettyPrinting().create();
+        String json = "";
+        synchronized(ServerSustava.uredajiIOT){
+            json = builder.toJson(ServerSustava.uredajiIOT);
+        }
         //json = jsonData.replace("\\\"", "");
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
@@ -202,7 +207,7 @@ public class ServerSustava {
      *
      * @param result jsonData objekt prikazan u varijabli tipa string
      */
-    public static String popuniListuUredaja(String result) {
+    public synchronized static String popuniListuUredaja(String result) {
         IOT iotUredaj = parsirajJson(result);
 
         if (iotUredaj != null) {

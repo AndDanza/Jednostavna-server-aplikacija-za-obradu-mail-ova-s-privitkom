@@ -67,24 +67,28 @@ class RadnaDretva extends Thread {
         String komandaValjana = provjeriKomandu(zahtjev);
         String odgovorServera = "";
 
-        //ni admin ni klijent = ERROR ...
-        if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
-            odgovorServera = komandaValjana;
-        }
-        else if (komandaValjana.contains("admin")) {
-            odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), true);
-        }
-        else if (komandaValjana.contains("klijent") && !RadnaDretva.pauza) {
-            odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), false);
-        }
-        else {
-            odgovorServera = "ERROR 11; Server JE u stanju pauze!";
+        synchronized (RadnaDretva.pauza) {
+            //ni admin ni klijent = ERROR ...
+            if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
+                odgovorServera = komandaValjana;
+            }
+            else if (komandaValjana.contains("admin")) {
+                odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), true);
+            }
+            else if (komandaValjana.contains("klijent") && !RadnaDretva.pauza) {
+                odgovorServera = izvrsiKomandu(komandaValjana.split(";")[1].trim(), false);
+            }
+            else {
+                odgovorServera = "ERROR 11; Server JE u stanju pauze!";
+            }
         }
 
         long stop = System.currentTimeMillis();
         long vrijemeIzvrsavanja = stop - this.start;
-        long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
-        ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi + vrijemeIzvrsavanja);
+        synchronized (ServerSustava.evidencija) {
+            long ukupnoVrijemeDretvi = ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi();
+            ServerSustava.evidencija.setUkupnoVrijemeRadaRadnihDretvi(ukupnoVrijemeDretvi + vrijemeIzvrsavanja);
+        }
 
         //vrati odgovarajući odgovor korisniku
         ServerSustava.posaljiOdgovor(socket, odgovorServera);
@@ -116,8 +120,10 @@ class RadnaDretva extends Thread {
             if (provjeriUsera.equals("OK;")) {
                 //je li zahtjev u komandi adminov ili ne?   admin;spavanje - ne može proći
                 if (!provjeriKomadnu.contains("admin")) {
-                    long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
-                    ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    synchronized (ServerSustava.evidencija) {
+                        long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
+                        ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    }
                     poruka = "ERROR 10; Klijentska komanda - nemate ovlasti!!";
                 }
                 else {
@@ -127,8 +133,10 @@ class RadnaDretva extends Thread {
             else {
                 //zahtjev ne odgovara adminu, ali ni klijentu (--spavanje korišteno kod adminove naredbe)
                 if (!provjeriKomadnu.contains("klijent")) {
-                    long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
-                    ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    synchronized (ServerSustava.evidencija) {
+                        long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
+                        ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
+                    }
                     poruka = "ERROR 10; Administratorska komanda - nemate ovlasti!";
                 }
                 else {
@@ -137,8 +145,10 @@ class RadnaDretva extends Thread {
             }
         }
         else {
-            long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
-            ServerSustava.evidencija.setBrojNeispravnihZahtjeva(nedozvoljeniZahtjevi);
+            synchronized (ServerSustava.evidencija) {
+                long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
+                ServerSustava.evidencija.setBrojNeispravnihZahtjeva(nedozvoljeniZahtjevi);
+            }
             poruka = "ERROR 02; Sintaksa naredbe neispravna!";
         }
 
@@ -225,12 +235,7 @@ class RadnaDretva extends Thread {
                 return promjenaStanjaServera("pauza");
             }
             else if (komanda.contains("stanje")) {
-                if (RadnaDretva.pauza) {
-                    return "OK;0";
-                }
-                else {
-                    return "OK;1";
-                }
+                return promjenaStanjaServera("stanje");
             }
             //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
             else if (komanda.contains("zaustavi")) {
@@ -301,10 +306,11 @@ class RadnaDretva extends Thread {
 
     /**
      * Metoda za postavljanje zastavice pauza i njenu kontrolu
+     *
      * @param stanje string naziv naredbe (kreni, stanje, pauza)
      * @return poruka greške ili OK
      */
-    private String promjenaStanjaServera(String stanje) {
+    private synchronized String promjenaStanjaServera(String stanje) {
         String odgovor = "";
 
         if (stanje.equals("kreni")) {
@@ -314,6 +320,14 @@ class RadnaDretva extends Thread {
         else if (stanje.equals("pauza")) {
             odgovor = RadnaDretva.pauza == false ? "OK;" : "ERROR 11; Server JE u stanju pauze!";
             RadnaDretva.pauza = true;
+        }
+        else {
+            if (RadnaDretva.pauza) {
+                return "OK;0";
+            }
+            else {
+                return "OK;1";
+            }
         }
 
         return odgovor;
