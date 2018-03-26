@@ -9,7 +9,20 @@ public class IOTTemperatura extends IOT {
     int temperatura;
 
     /**
-     * Konstruktor
+     * Konstruktor za instanciranje novog IOT uređaja
+     * @param lokacija lokacija uređaja
+     * @param tempertatura izmjerena temeperatura
+     * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
+     */
+    public IOTTemperatura(String lokacija, int tempertatura, long vrijemeMjerenja) {
+        this.id = IOT.brojac++;
+        this.lokacija = lokacija;
+        this.temperatura = tempertatura;
+        this.vrijemeMilisekunde = vrijemeMjerenja;
+    }
+    
+    /**
+     * Konstruktor za instanciranje postojećeg
      * @param id identifikator uređaja
      * @param lokacija lokacija uređaja
      * @param tempertatura izmjerena temeperatura
@@ -20,6 +33,7 @@ public class IOTTemperatura extends IOT {
         this.lokacija = lokacija;
         this.temperatura = tempertatura;
         this.vrijemeMilisekunde = vrijemeMjerenja;
+        IOT.brojac++;
     }
     /**
      * Getter za dohvaćanje temeprature

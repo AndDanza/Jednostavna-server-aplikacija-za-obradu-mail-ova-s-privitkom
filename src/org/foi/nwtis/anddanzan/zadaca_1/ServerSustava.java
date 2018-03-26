@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
@@ -41,23 +42,6 @@ public class ServerSustava {
         try {
             Konfiguracija konf = KonfiguracijaApstraktna.preuzmiKonfiguraciju(args[0]);
             ServerSustava serverSustava = new ServerSustava();
-
-//            IOT uredaj = new IOTTemperatura(1, "Pula", 15, System.currentTimeMillis());
-//            IOT.uredajiIOT.add(uredaj);
-//            uredaj = new IOTVLaga(2, "Varaždin", 15, System.currentTimeMillis());
-//            IOT.uredajiIOT.add(uredaj);
-//            uredaj = new IOTVjetar(3, "Požega", 15, System.currentTimeMillis());
-//            IOT.uredajiIOT.add(uredaj);
-//            
-//            for (IOT arg : IOT.uredajiIOT) {
-//                System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
-//            }
-            IOT.ucitajPodatke(konf.dajPostavku("datoteka.iot.zapisa"));
-
-            for (IOT arg : IOT.uredajiIOT) {
-                System.out.println(arg.lokacija + "(" + arg.dohvatiVrijemeMjerenjaDatum() + ") - " + arg.vrijednostMjerenja());
-            }
-
             serverSustava.pokreniPosluzitelj(konf);
 
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
@@ -78,6 +62,9 @@ public class ServerSustava {
 
         boolean radiDok = true;
 
+        //instanciranje liste IOT uređaja
+        IOT.uredajiIOT = new ArrayList<>();
+        
         //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         try {
             Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);

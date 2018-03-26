@@ -9,6 +9,19 @@ public class IOTVjetar extends IOT{
 
     /**
      * Konstruktor
+     * @param lokacija lokacija uređaja
+     * @param brzinaVjetra izmjerena brzina vjetra
+     * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
+     */
+    public IOTVjetar(String lokacija, int brzinaVjetra, long vrijemeMjerenja) {
+        this.id = IOT.brojac++;
+        this.lokacija = lokacija;
+        this.brzinaVjetra = brzinaVjetra;
+        this.vrijemeMilisekunde = vrijemeMjerenja;
+    }
+    
+    /**
+     * Konstruktor
      * @param id identifikator uređaja
      * @param lokacija lokacija uređaja
      * @param brzinaVjetra izmjerena brzina vjetra
@@ -19,6 +32,7 @@ public class IOTVjetar extends IOT{
         this.lokacija = lokacija;
         this.brzinaVjetra = brzinaVjetra;
         this.vrijemeMilisekunde = vrijemeMjerenja;
+        IOT.brojac++;
     }
 
     /**

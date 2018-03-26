@@ -14,7 +14,20 @@ public class IOTVLaga extends IOT {
     int vlaga;
 
     /**
-     * Konstruktor
+     * Konstruktor za instanciranje novog IOT uređaja
+     * @param lokacija lokacija uređaja
+     * @param vlaga izmjerena vlaga zraka
+     * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
+     */
+    public IOTVLaga(String lokacija, int vlaga, long vrijemeMjerenja) {
+        this.id = IOT.brojac++;
+        this.lokacija = lokacija;
+        this.vlaga = vlaga;
+        this.vrijemeMilisekunde = vrijemeMjerenja;
+    }
+    
+    /**
+     * Konstruktor za instanciranje postojećeg IOT uređaja
      * @param id identifikator uređaja
      * @param lokacija lokacija uređaja
      * @param vlaga izmjerena vlaga zraka
@@ -25,6 +38,7 @@ public class IOTVLaga extends IOT {
         this.lokacija = lokacija;
         this.vlaga = vlaga;
         this.vrijemeMilisekunde = vrijemeMjerenja;
+        IOT.brojac++;
     }
 
     /**

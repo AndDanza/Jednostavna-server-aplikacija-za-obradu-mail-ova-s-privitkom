@@ -1,6 +1,12 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,17 +20,20 @@ import org.nwtis.anddanzan.konfiguracije.KonfiguracijaJSON;
 
 /**
  * Klasa za IOT uređaje za koje se pohranjuju podaci
+ *
  * @author Andrea
  */
 public abstract class IOT implements Serializable, InterfaceIOT {
 
+    public static int brojac = 0;
     int id;
     String lokacija;
     long vrijemeMilisekunde;
-    public static List<IOT> uredajiIOT = new ArrayList<IOT>();
+    public static List<IOT> uredajiIOT = null;
 
     /**
      * Getter za dohvaćanje id-a
+     *
      * @return vraća <code>int</code> varijablu s vrijednosti id-a
      */
     public int dohvatiId() {
@@ -33,14 +42,16 @@ public abstract class IOT implements Serializable, InterfaceIOT {
 
     /**
      * Setter za postavljane id-a
+     *
      * @param id dobiveni id zapisuje u arijablu klase
      */
     public void postaviId(int id) {
         this.id = id;
     }
-    
+
     /**
      * Setter za postavljanje nove lokacije u varijablu klase
+     *
      * @param lokacija lokacija za pohranu u varijablu klase
      */
     public void postaviLokaciju(String lokacija) {
@@ -49,14 +60,16 @@ public abstract class IOT implements Serializable, InterfaceIOT {
 
     /**
      * Getter za dohvaćanje lokacije
+     *
      * @return vraća string vrijednost lokacije IOT uređaja
      */
     public String dohvatiLokaciju() {
         return lokacija;
     }
-    
+
     /**
      * Setter za postavljanje novog vremena mjerenja u varijablu klase
+     *
      * @param vrijeme vrijeme u milisekundama za zapisu u varijablu klase
      */
     public void postaviVrijemeMilisekunde(long vrijeme) {
@@ -65,6 +78,7 @@ public abstract class IOT implements Serializable, InterfaceIOT {
 
     /**
      * Getter za dohvaćanje vremena mjerenja u milisekundama
+     *
      * @return vrijeme u milisekundama tipa <code>long</code>
      */
     public long dohvatiVrijemeMilisekunde() {
@@ -73,6 +87,7 @@ public abstract class IOT implements Serializable, InterfaceIOT {
 
     /**
      * Getter za dohvaćanje vremena mjerenja u obliku datuma
+     *
      * @return vrijeme u milisekundama tipa <code>string</code>
      */
     public String dohvatiVrijemeMjerenjaDatum() {
@@ -83,7 +98,8 @@ public abstract class IOT implements Serializable, InterfaceIOT {
     //deserijalizacija IOT-a za slanje i učitavanje
     /**
      * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
-     * @param datoteka 
+     *
+     * @param datoteka
      */
     public static void pohraniPodatke(String datoteka) {
         try (FileWriter file = new FileWriter(datoteka)) {
@@ -93,31 +109,55 @@ public abstract class IOT implements Serializable, InterfaceIOT {
             Logger.getLogger(KonfiguracijaJSON.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    //deserijalizacija IOT-a za slanje i učitavanje
-    /**
-     * Metoda za učitavanje podataka o IOT uređajima te punjenje lise onjekata IOT uređaja
-     * @param datoteka 
-     */
-    public static void ucitajPodatke(String datoteka) {
-        try (FileReader file = new FileReader(datoteka)) {
-            StringBuffer stringBuffer = new StringBuffer();
-            while (true) {
-                int znak = file.read();
 
-                if (znak == -1) {
-                    break;
+    /**
+     * Metoda za parsiranje stringa json-a i punjenje liste IOT uređaja
+     * objektima
+     *
+     * @param result json objekt prikazan u varijabli tipa string
+     */
+    public static String popuniListuUredaja(String result) {
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(result).getAsJsonObject();
+
+        String lokacija = json.get("lokacija").toString();
+        int id = Integer.valueOf(json.get("id").toString());
+        long vrijeme = Long.valueOf(json.get("vrijemeMilisekunde").toString());
+        IOT iotUredaj = null;
+
+        if (json.has("temperatura")) {
+            int vrijednost = Integer.valueOf(json.get("temperatura").toString());
+
+            iotUredaj = new IOTTemperatura(id, lokacija, vrijednost, vrijeme);
+        }
+        else if (json.has("vlaga")) {
+            int vrijednost = Integer.valueOf(json.get("vlaga").toString());
+
+            iotUredaj = new IOTVLaga(id, lokacija, vrijednost, vrijeme);
+        }
+        else if (json.has("brzinaVjetra")) {
+            int vrijednost = Integer.valueOf(json.get("brzinaVjetra").toString());
+
+            iotUredaj = new IOTVjetar(id, lokacija, vrijednost, vrijeme);
+        }
+
+        if (iotUredaj != null) {
+            for (IOT iot : IOT.uredajiIOT) {
+                if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
+                    IOT.uredajiIOT.remove(iot);
+                    IOT.uredajiIOT.add(iotUredaj);
+                    return "OK 21;";
                 }
 
-                stringBuffer.append((char) znak);
+                else {
+                    IOT.uredajiIOT.add(iotUredaj);
+                    return "OK 20";
+                }
             }
-            String result = stringBuffer.toString();
-                        
-            //TODO naputni listu IOT objektima
-            //TODO kako odredit koji objekt mora bit instanciran
-            System.out.println(result);
-        } catch (IOException ex) {
-            Logger.getLogger(KonfiguracijaJSON.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        return "ERROR 21; Sadržaj IOT datoteke nije valjan";
+
     }
+
 }
