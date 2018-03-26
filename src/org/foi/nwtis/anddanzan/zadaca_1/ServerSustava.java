@@ -1,7 +1,12 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -71,15 +76,6 @@ public class ServerSustava {
                 int n = rand.nextInt(150) + 1;
                 vjetar = new IOTVjetar("Varaždin", n, System.currentTimeMillis() + n);
                 objektIOT.dodajMjerenjeUredaja(vjetar);
-            }
-            uredajiIOT.add(objektIOT);
-
-            objektIOT = new IOT(3);
-            IOTVLaga vlaga = null;
-            for (int i = 0; i < 5; i++) {
-                int n = rand.nextInt(20) + 1;
-                vlaga = new IOTVLaga("Požega", n, System.currentTimeMillis() + n);
-                objektIOT.dodajMjerenjeUredaja(vlaga);
             }
             uredajiIOT.add(objektIOT);
             //samo za testiranje
@@ -214,7 +210,7 @@ public class ServerSustava {
      */
     public static String serijalizirajIOT(Konfiguracija konf) {
         String json = new GsonBuilder().setPrettyPrinting().create().toJson(ServerSustava.uredajiIOT);
-        //json = json.replace("\\\"", "");
+        //json = jsonData.replace("\\\"", "");
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
         header += json.getBytes().length + "<CRLF>\n";
@@ -222,60 +218,66 @@ public class ServerSustava {
     }
 
     /**
-     * Metoda za parsiranje stringa json-a i punjenje liste IOT uređaja
+     * Metoda za parsiranje stringa jsonData-a i punjenje liste IOT uređaja
      * objektima
      *
-     * @param result json objekt prikazan u varijabli tipa string
+     * @param result jsonData objekt prikazan u varijabli tipa string
      */
-    public String popuniListuUredaja(String result) {
-        /*
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(result).getAsJsonObject();
-
-        String lokacija = json.get("lokacija").toString();
-        int id = Integer.valueOf(json.get("id").toString());
-        long vrijeme = Long.valueOf(json.get("vrijemeMilisekunde").toString());
-        InterfaceIOT iotUredaj = null;
-
-        if (json.has("temperatura")) {
-            int vrijednost = Integer.valueOf(json.get("temperatura").toString());
-
-            iotUredaj = new IOTTemperatura(id, lokacija, vrijednost, vrijeme);
-        }
-        else if (json.has("vlaga")) {
-            int vrijednost = Integer.valueOf(json.get("vlaga").toString());
-
-            iotUredaj = new IOTVLaga(id, lokacija, vrijednost, vrijeme);
-        }
-        else if (json.has("brzinaVjetra")) {
-            int vrijednost = Integer.valueOf(json.get("brzinaVjetra").toString());
-
-            iotUredaj = new IOTVjetar(id, lokacija, vrijednost, vrijeme);
-        }
+    public static String popuniListuUredaja(String result) {
+        IOT iotUredaj = parsirajJson(result);
 
         if (iotUredaj != null) {
-            if (!IOT.uredajiIOT.isEmpty()) {
-                for (IOT iot : IOT.uredajiIOT) {
+            if (!ServerSustava.uredajiIOT.isEmpty()) {
+                for (IOT iot : ServerSustava.uredajiIOT) {
                     if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
-                        IOT.uredajiIOT.remove(iot);
-                        IOT.uredajiIOT.add(iotUredaj);
+                        iot.azurirajMjerenjeUredaja(iotUredaj.dohvatiMjerenjaUredaja());
                         return "OK 21;";
                     }
-                    else {
-                        IOT.uredajiIOT.add(iotUredaj);
-                        return "OK 20";
-                    }
                 }
+                ServerSustava.uredajiIOT.add(iotUredaj);
+                return "OK 20";
             }
             else {
-                IOT.uredajiIOT.add(iotUredaj);
+                ServerSustava.uredajiIOT.add(iotUredaj);
                 return "OK 20";
             }
         }
-
-         */
         return "ERROR 21; Sadržaj IOT datoteke nije valjan";
 
+    }
+
+    /**
+     * DObiveni json string (JsonObject) parsira se u IOT objekt s listom
+     * objekata koji implementiraju InterfaceIOT
+     *
+     * @param result
+     * @return
+     */
+    private static IOT parsirajJson(String result) {
+        JsonParser parser = new JsonParser();
+        JsonObject jsonData = parser.parse(result).getAsJsonObject();
+
+        int id = Integer.valueOf(jsonData.get("id").toString());
+        IOT zapisKlijenta = new IOT(id);
+
+        JsonArray podaci = jsonData.get("mjerenjaUredaja").getAsJsonArray();
+        Gson builder = new GsonBuilder().create();
+        for (JsonElement jsonElement : podaci) {
+            JsonObject json = (JsonObject) jsonElement;
+            InterfaceIOT objekt = null;
+            if (json.has("temperatura")) {
+                objekt = builder.fromJson(json, IOTTemperatura.class);
+            }
+            else if (json.has("vlaga")) {
+                objekt = builder.fromJson(json, IOTVLaga.class);
+            }
+            else if (json.has("brzinaVjetra")) {
+                objekt = builder.fromJson(json, IOTVjetar.class);
+            }
+            zapisKlijenta.dodajMjerenjeUredaja(objekt);
+        }
+
+        return zapisKlijenta;
     }
 
 }

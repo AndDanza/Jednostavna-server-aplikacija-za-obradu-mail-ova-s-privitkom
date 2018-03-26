@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author Andrea
  */
-public class IOT implements Serializable{
+public class IOT implements Serializable {
 
     int id;
     List<InterfaceIOT> mjerenjaUredaja = null;
@@ -22,7 +22,8 @@ public class IOT implements Serializable{
     /**
      * Getter za dohvaćanje liste objekata s podacima o mjerenju
      *
-     * @return vraća listu tipa <code>InterfaceIOT</code> listu s objektima određenog iot uređaja
+     * @return vraća listu tipa <code>InterfaceIOT</code> listu s objektima
+     * određenog iot uređaja
      */
     public List<InterfaceIOT> dohvatiMjerenjaUredaja() {
         return mjerenjaUredaja;
@@ -31,12 +32,13 @@ public class IOT implements Serializable{
     /**
      * Setter za punjenje liste objekata IOT uređaja
      *
-     * @param mjerenjaUredaja lista objekata s podacima koje je potrebo pohraniti
+     * @param mjerenjaUredaja lista objekata s podacima koje je potrebo
+     * pohraniti
      */
     public void postaviMjerenjaUredaja(List<InterfaceIOT> mjerenjaUredaja) {
         this.mjerenjaUredaja = mjerenjaUredaja;
     }
-    
+
     /**
      * Metoda za dodavanje pojedinog objekta IOT mjerenja
      *
@@ -45,21 +47,18 @@ public class IOT implements Serializable{
     public void dodajMjerenjeUredaja(InterfaceIOT mjerenjeUredaja) {
         this.mjerenjaUredaja.add(mjerenjeUredaja);
     }
-    
+
     /**
      * Metoda za azuriranje zapisa objekta s podacima
      *
-     * @param mjerenjeUredaja objekat s podacima koji je potrebno pohraniti na mjesto postojećeg
+     * @param novaMjerenjaUredaja lista novih mjerenja koje je potrebno dodati
      */
-    public void azurirajMjerenjeUredaja(InterfaceIOT mjerenjeUredaja) {
-        for(InterfaceIOT obj : this.mjerenjaUredaja)
-            if(obj.dohvatiVrijemeMilisekunde() == mjerenjeUredaja.dohvatiVrijemeMilisekunde())
-                this.mjerenjaUredaja.remove(obj);
-        
-        this.mjerenjaUredaja.add(mjerenjeUredaja);
+    public void azurirajMjerenjeUredaja(List<InterfaceIOT> novaMjerenjaUredaja) {
+        for (InterfaceIOT obj : novaMjerenjaUredaja) {
+            this.mjerenjaUredaja.add(obj);
+        }
     }
-    
-    
+
     /**
      * Getter za dohvaćanje id-a
      *

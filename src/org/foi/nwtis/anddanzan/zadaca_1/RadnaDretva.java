@@ -249,7 +249,7 @@ class RadnaDretva extends Thread {
                 return spavaj(komanda);
             }
             else {
-                return "TO DO"; //IOT.popuniListuUredaja(komanda);
+                return ServerSustava.popuniListuUredaja(komanda);
             }
         }
     }

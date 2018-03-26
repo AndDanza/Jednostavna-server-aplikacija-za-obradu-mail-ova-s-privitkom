@@ -46,7 +46,7 @@ public class AdministratorSustava extends KorisnikSustava {
                     if(m.find()){
                         String kod = m.group(0).split(" ")[1].replace(";", ""); //ZN-KODOVI UTF-8; podjeli po razmku, uzmi desni dio i ukloni ;
                         Charset charset = Charset.forName(kod);
-                        odgovor = new String(odgovor.getBytes(), charset);
+                        odgovor = new String(odgovor.getBytes(), charset).replace(";", "");
                     }
                     
                     FileWriter file = new FileWriter(datoteka);
