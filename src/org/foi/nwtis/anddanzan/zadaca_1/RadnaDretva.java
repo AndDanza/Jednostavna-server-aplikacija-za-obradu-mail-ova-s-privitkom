@@ -120,10 +120,7 @@ class RadnaDretva extends Thread {
             if (provjeriUsera.equals("OK;")) {
                 //je li zahtjev u komandi adminov ili ne?   admin;spavanje - ne može proći
                 if (!provjeriKomadnu.contains("admin")) {
-                    synchronized (ServerSustava.evidencija) {
-                        long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
-                        ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
-                    }
+                    ServerSustava.azurirajEvidenciju("nedozvoljeni");
                     poruka = "ERROR 10; Klijentska komanda - nemate ovlasti!!";
                 }
                 else {
@@ -133,10 +130,7 @@ class RadnaDretva extends Thread {
             else {
                 //zahtjev ne odgovara adminu, ali ni klijentu (--spavanje korišteno kod adminove naredbe)
                 if (!provjeriKomadnu.contains("klijent")) {
-                    synchronized (ServerSustava.evidencija) {
-                        long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
-                        ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(nedozvoljeniZahtjevi);
-                    }
+                    ServerSustava.azurirajEvidenciju("nedozvoljeni");
                     poruka = "ERROR 10; Administratorska komanda - nemate ovlasti!";
                 }
                 else {
@@ -145,10 +139,7 @@ class RadnaDretva extends Thread {
             }
         }
         else {
-            synchronized (ServerSustava.evidencija) {
-                long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
-                ServerSustava.evidencija.setBrojNeispravnihZahtjeva(nedozvoljeniZahtjevi);
-            }
+            ServerSustava.azurirajEvidenciju("neispravni");
             poruka = "ERROR 02; Sintaksa naredbe neispravna!";
         }
 

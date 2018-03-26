@@ -41,7 +41,7 @@ public class ServerSustava {
     /**
      * Statična lista objekata za zapis podataka s IOT uređaja
      */
-    public static List<IOT> uredajiIOT = null;
+    public static List<IOT> uredajiIOT = new ArrayList<>();
 
     /**
      * @param args the command line arguments
@@ -72,31 +72,13 @@ public class ServerSustava {
         int port = Integer.parseInt(konf.dajPostavku("port"));
         int maxBrZahtjevaCekanje = Integer.parseInt(konf.dajPostavku("max.broj.zahtjeva.cekanje"));
         int maxBrRadnihDretvi = Integer.parseInt(konf.dajPostavku("max.broj.radnih.dretvi"));
-        String datotekaEvidencije = konf.dajPostavku("datoteka.evidencije.rada");
 
-        boolean radiDok = true;
+        pokreniEvidentiranje(konf);
 
-        //instanciranje liste IOT uređaja
-        ServerSustava.uredajiIOT = new ArrayList<>();
-
-        //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
-        try {
-            Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
-            ServerSustava.evidencija = new Evidencija(evidencijaRada);
-
-        } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
-            System.out.println(ex.getMessage());
-            ServerSustava.evidencija = new Evidencija();
-        }
-
-        //instanciranje objekta za IOT uređaj
-        //TODO potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
-        SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
-        serijalizatorEvid.start();
         try {
             ServerSocket serverSocket = new ServerSocket(port, maxBrZahtjevaCekanje);
 
-            while (radiDok) {
+            while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Korisnik se spojio!");
 
@@ -115,10 +97,7 @@ public class ServerSustava {
                     ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
 
                     //Ažuriraj evidenciju rada
-                    synchronized (ServerSustava.evidencija) {
-                        long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();
-                        ServerSustava.evidencija.setBrojPrekinutihZahtjeva(++prekinutiZahtjevi);
-                    }
+                    ServerSustava.azurirajEvidenciju("prekinuti");
 
                 }
                 else {
@@ -126,10 +105,7 @@ public class ServerSustava {
                     radnaDretva.start();
 
                     //ukupan broj dretvi
-                    synchronized (ServerSustava.evidencija) {
-                        long brDretvi = ServerSustava.evidencija.getBrojUspjesnihZahtjeva();
-                        ServerSustava.evidencija.setBrojUspjesnihZahtjeva(++brDretvi);
-                    }
+                    ServerSustava.azurirajEvidenciju("brojDretvi");
                 }
             }
         } catch (IOException ex) {
@@ -191,7 +167,7 @@ public class ServerSustava {
     public static String serijalizirajIOT(Konfiguracija konf) {
         Gson builder = new GsonBuilder().setPrettyPrinting().create();
         String json = "";
-        synchronized(ServerSustava.uredajiIOT){
+        synchronized (ServerSustava.uredajiIOT) {
             json = builder.toJson(ServerSustava.uredajiIOT);
         }
         //json = jsonData.replace("\\\"", "");
@@ -264,4 +240,52 @@ public class ServerSustava {
         return zapisKlijenta;
     }
 
+    /**
+     * Statična metoda za ažuriranje prekinutih zahtjeva i broja dretvi
+     *
+     * @param tip string za određivanje vrste ažuriranja evidencije
+     */
+    public static synchronized void azurirajEvidenciju(String tip) {
+        if (tip.equals("prekinuti")) {
+            long prekinutiZahtjevi = ServerSustava.evidencija.getBrojPrekinutihZahtjeva();
+            ServerSustava.evidencija.setBrojPrekinutihZahtjeva(++prekinutiZahtjevi);
+        }
+        else if (tip.equals("brojDretvi")) {
+            long brDretvi = ServerSustava.evidencija.getBrojUspjesnihZahtjeva();
+            ServerSustava.evidencija.setBrojUspjesnihZahtjeva(++brDretvi);
+        }
+        else if (tip.equals("nedozvoljeni")) {
+            long nedozvoljeniZahtjevi = ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva();
+            ServerSustava.evidencija.setBrojNedozvoljenihZahtjeva(++nedozvoljeniZahtjevi);
+        }
+        else if (tip.equals("neispravni")) {
+            long neispravniZahtjevi = ServerSustava.evidencija.getBrojNeispravnihZahtjeva();
+            ServerSustava.evidencija.setBrojNeispravnihZahtjeva(++neispravniZahtjevi);
+        }
+    }
+
+    /**
+     * Metoda za pokretanje evidentiranja na serveru (instanciranje objekta i
+     * pokretanje serijalizatora)
+     *
+     * @param konf objekt tipa Konfigutacija s podacima iz konfiguracijske
+     * datoteke
+     */
+    private synchronized void pokreniEvidentiranje(Konfiguracija konf) {
+        String datotekaEvidencije = konf.dajPostavku("datoteka.evidencije.rada");
+
+        //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
+        try {
+            Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
+            ServerSustava.evidencija = new Evidencija(evidencijaRada);
+        } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
+            System.out.println(ex.getMessage());
+            ServerSustava.evidencija = new Evidencija();
+        }
+
+        //instanciranje objekta za IOT uređaj
+        //TODO potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
+        SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
+        serijalizatorEvid.start();
+    }
 }
