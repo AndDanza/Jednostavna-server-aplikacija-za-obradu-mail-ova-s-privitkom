@@ -12,8 +12,17 @@ import java.util.List;
 public class IOT implements Serializable {
 
     int id;
+    /**
+     * Lista instanci objekata koji implementiraju InterfaceIOT s podacima o
+     * mjerenjima uređaja
+     */
     List<InterfaceIOT> mjerenjaUredaja = null;
 
+    /**
+     * Konstruktor
+     *
+     * @param id Identifikator uređaja
+     */
     public IOT(int id) {
         this.id = id;
         mjerenjaUredaja = new ArrayList<>();
@@ -49,7 +58,8 @@ public class IOT implements Serializable {
     }
 
     /**
-     * Metoda za azuriranje zapisa objekta s podacima
+     * Metoda za azuriranje zapisa objekta s novim podacima (dodaje na kraj
+     * postojeće liste)
      *
      * @param novaMjerenjaUredaja lista novih mjerenja koje je potrebno dodati
      */

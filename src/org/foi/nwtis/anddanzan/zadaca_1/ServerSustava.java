@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,28 +56,6 @@ public class ServerSustava {
         try {
             Konfiguracija konf = KonfiguracijaApstraktna.preuzmiKonfiguraciju(args[0]);
             ServerSustava serverSustava = new ServerSustava();
-
-            //samo za testiranje
-            Random rand = new Random();
-            uredajiIOT = new ArrayList<>();
-            IOT objektIOT = new IOT(1);
-            IOTTemperatura temp = null;
-            for (int i = 0; i < 5; i++) {
-                int n = rand.nextInt(30) + 1;
-                temp = new IOTTemperatura("Pula", n, System.currentTimeMillis() + n);
-                objektIOT.dodajMjerenjeUredaja(temp);
-            }
-            uredajiIOT.add(objektIOT);
-
-            objektIOT = new IOT(2);
-            IOTVjetar vjetar = null;
-            for (int i = 0; i < 5; i++) {
-                int n = rand.nextInt(150) + 1;
-                vjetar = new IOTVjetar("Varaždin", n, System.currentTimeMillis() + n);
-                objektIOT.dodajMjerenjeUredaja(vjetar);
-            }
-            uredajiIOT.add(objektIOT);
-            //samo za testiranje
             serverSustava.pokreniPosluzitelj(konf);
 
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
@@ -101,7 +78,8 @@ public class ServerSustava {
         boolean radiDok = true;
 
         //instanciranje liste IOT uređaja
-        //ServerSustava.uredajiIOT = new ArrayList<>();
+        ServerSustava.uredajiIOT = new ArrayList<>();
+        
         //Provjeri i ako postoji učitaj evidenciju rada, ako ne inicijaliziraj (koristeći KonfiguracijaApstraktna za učitavanje  provjeru)
         try {
             Konfiguracija evidencijaRada = KonfiguracijaApstraktna.preuzmiKonfiguraciju(datotekaEvidencije);
@@ -112,7 +90,8 @@ public class ServerSustava {
             ServerSustava.evidencija = new Evidencija();
         }
 
-        //TODO instanciranje objekta za IOT uređaj - potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
+        //instanciranje objekta za IOT uređaj
+        //TODO potrebno međusobno isključivanje za zapis iz RadneDretve u evidenciju
         SerijalizatorEvidencije serijalizatorEvid = new SerijalizatorEvidencije("anddanzan - Serijalizator", konf);
         serijalizatorEvid.start();
         try {
@@ -247,11 +226,11 @@ public class ServerSustava {
     }
 
     /**
-     * DObiveni json string (JsonObject) parsira se u IOT objekt s listom
+     * Dobiveni json string (JsonObject) parsira se u IOT objekt s listom
      * objekata koji implementiraju InterfaceIOT
      *
-     * @param result
-     * @return
+     * @param result string jsona
+     * @return IOT objekt popunjen podacima iz stringa jsona
      */
     private static IOT parsirajJson(String result) {
         JsonParser parser = new JsonParser();

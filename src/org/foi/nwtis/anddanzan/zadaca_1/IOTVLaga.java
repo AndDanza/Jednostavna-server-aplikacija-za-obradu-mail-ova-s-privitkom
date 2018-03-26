@@ -9,9 +9,10 @@ import java.text.SimpleDateFormat;
 
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje vlage zraka
+ *
  * @author Andrea
  */
-public class IOTVLaga implements InterfaceIOT{
+public class IOTVLaga implements InterfaceIOT {
 
     int vlaga;
     String lokacija;
@@ -19,6 +20,7 @@ public class IOTVLaga implements InterfaceIOT{
 
     /**
      * Konstruktor za instanciranje novog IOT uređaja
+     *
      * @param lokacija lokacija uređaja
      * @param vlaga izmjerena vlaga zraka
      * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
@@ -79,19 +81,21 @@ public class IOTVLaga implements InterfaceIOT{
         String timeString = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS").format(this.vrijemeMilisekunde);
         return timeString;
     }
-    
+
     /**
      * Getter za dohvaćanje vlage zraka
+     *
      * @return vraća <code>int</code> varijablu s vrijednosti temeprature
      */
     @Override
     public String dohvatiVrijednostMjerenja() {
         return Integer.toString(this.vlaga);
     }
-    
+
     /**
      * Setter za postavljanje nove vrijednosti vlage zraka
-     * @param mjerenje  nova mjerenja vlage u zraku za pohranu u klasu
+     *
+     * @param mjerenje nova mjerenja vlage u zraku za pohranu u klasu
      */
     @Override
     public void postaviVrijednostMjerenja(int mjerenje) {

@@ -4,9 +4,10 @@ import java.text.SimpleDateFormat;
 
 /**
  * Klasa za pohranu podataka o IOT uređaju za mjerenje temperature
+ *
  * @author Andrea
  */
-public class IOTTemperatura implements InterfaceIOT{
+public class IOTTemperatura implements InterfaceIOT {
 
     int temperatura;
     String lokacija;
@@ -14,6 +15,7 @@ public class IOTTemperatura implements InterfaceIOT{
 
     /**
      * Konstruktor za instanciranje novog IOT uređaja
+     *
      * @param lokacija lokacija uređaja
      * @param tempertatura izmjerena temeperatura
      * @param vrijemeMjerenja vrijeme mjerenja zadano u milisekundama
@@ -23,7 +25,7 @@ public class IOTTemperatura implements InterfaceIOT{
         this.temperatura = tempertatura;
         this.vrijemeMilisekunde = vrijemeMjerenja;
     }
-    
+
     /**
      * Setter za postavljanje nove lokacije u varijablu klase
      *
@@ -77,6 +79,7 @@ public class IOTTemperatura implements InterfaceIOT{
 
     /**
      * Getter za dohvaćanje vrijednosti mjerenja
+     *
      * @return String vrijednost vrijednosti mjerenja
      */
     @Override
@@ -86,6 +89,7 @@ public class IOTTemperatura implements InterfaceIOT{
 
     /**
      * Setter za postavljanje vrijednosti mjerenja
+     *
      * @param mjerenje vrijednost mjerenja za zapisvanje
      */
     @Override

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Klasa koja definira stanja i ponašanje korisnika - Administratora i Klijenta
+ *
  * @author Andrea
  */
 public class KorisnikSustava {
@@ -31,7 +32,7 @@ public class KorisnikSustava {
         //provjeri upisane argumente
         KorisnikSustava korisnik = new KorisnikSustava();
         //kroz arg prosljeđuje se komanda, na temelju komande odredi koji je korisnik (admin ili klijent)
-        korisnik.preuzmiPostavke(args); 
+        korisnik.preuzmiPostavke(args);
         korisnik.args = args;
 
         if (korisnik.administrator) {
@@ -52,6 +53,7 @@ public class KorisnikSustava {
 
     /**
      * Određivanje vrste korisnika te učitavanje ulaznih parametara (komande)
+     *
      * @param args the command line arguments
      */
     private void preuzmiPostavke(String[] args) {
@@ -81,6 +83,7 @@ public class KorisnikSustava {
 
     /**
      * Metoda za slanje komande kroz socket pomoću <code>OutputStream-a</code>
+     *
      * @param socket Kreirani socket korisnika prema serveru
      * @param komanda string varijabla s komandom za server
      */
@@ -96,7 +99,9 @@ public class KorisnikSustava {
     }
 
     /**
-     * Metoda za primanje odgovora servera kroz socket pomoću <code>InputStream-a</code>
+     * Metoda za primanje odgovora servera kroz socket pomoću
+     * <code>InputStream-a</code>
+     *
      * @param socket Kreirani socket korisnika prema serveru
      * @return string odgovora servera
      */
@@ -108,18 +113,18 @@ public class KorisnikSustava {
             stringBuffer = new StringBuffer();
             while (true) {
                 int znak = inputStream.read();
-                
+
                 if (znak == -1) {
                     break;
                 }
-                
+
                 stringBuffer.append((char) znak);
-            }   
+            }
             socket.shutdownInput();
         } catch (IOException ex) {
             Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return stringBuffer.toString();
     }
 }

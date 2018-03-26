@@ -27,7 +27,7 @@ public class AdministratorSustava extends KorisnikSustava {
     public void preuzmiKontrolu() {
         try {
             Socket socket = new Socket(this.adresa, this.port);
-            
+
             posaljiKomandu(socket, this.komanda);
 
             String odgovor = zaprimiOdgovor(socket);
@@ -43,19 +43,19 @@ public class AdministratorSustava extends KorisnikSustava {
                     pattern = Pattern.compile(regexDat);
                     m = pattern.matcher(odgovor);
                     //dohvaćanje i postavljanje charseta
-                    if(m.find()){
+                    if (m.find()) {
                         String kod = m.group(0).split(" ")[1].replace(";", ""); //ZN-KODOVI UTF-8; podjeli po razmku, uzmi desni dio i ukloni ;
                         Charset charset = Charset.forName(kod);
                         odgovor = new String(odgovor.getBytes(), charset).replace(";", "");
                     }
-                    
+
                     FileWriter file = new FileWriter(datoteka);
                     file.write(odgovor);
                     file.flush();
                     file.close();
                 }
             }
-            
+
             System.out.println("Odgovor: " + odgovor);
 
         } catch (IOException ex) {

@@ -66,7 +66,7 @@ class RadnaDretva extends Thread {
         //Provjeriti dozvoljene komande 
         String komandaValjana = provjeriKomandu(zahtjev);
         String odgovorServera = "";
-        
+
         //ni admin ni klijent = ERROR ...
         if (!komandaValjana.contains("admin") && !komandaValjana.contains("klijent")) {
             odgovorServera = komandaValjana;
@@ -201,7 +201,7 @@ class RadnaDretva extends Thread {
                 return "klijent;" + replacedString; //klijent;spavanje
             }
             else {
-                return "klijent;"+komanda.substring(komanda.indexOf(";")+1, komanda.length()-1);    //dan je sadržaj iot dat (nema naredbe)
+                return "klijent;" + komanda.substring(komanda.indexOf(";") + 1, komanda.length() - 1);    //dan je sadržaj iot dat (nema naredbe)
             }
         }
 
@@ -224,14 +224,14 @@ class RadnaDretva extends Thread {
             else if (komanda.contains("pauza")) {
                 return promjenaStanjaServera("pauza");
             }
-                else if (komanda.contains("stanje")) {
+            else if (komanda.contains("stanje")) {
                 if (RadnaDretva.pauza) {
                     return "OK;0";
                 }
                 else {
                     return "OK;1";
                 }
-                    }
+            }
             //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
             else if (komanda.contains("zaustavi")) {
                 return "OK;zaustavi";
@@ -262,7 +262,6 @@ class RadnaDretva extends Thread {
      * @return string vrijednost datoteke + zaglavlje
      */
     private String deserijalizirajZapisZaSlanje(String datoteka) {
-        //TODO kod bin datoteke bi moglo sve past, nakoniot kreiranja probat preko objekta ovoodradit
         String deserijaliziranaEvidencija = "";
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
@@ -292,7 +291,7 @@ class RadnaDretva extends Thread {
         if (m.find()) {
             int spavaj = Integer.valueOf(m.group(0));
             try {
-                Thread.sleep(spavaj*1000);  //secu milisek
+                Thread.sleep(spavaj * 1000);  //secu milisek
             } catch (InterruptedException ex) {
                 return "ERROR 22; Spavanje dretve nije uspjelo";
             }
@@ -300,6 +299,11 @@ class RadnaDretva extends Thread {
         return "OK;";
     }
 
+    /**
+     * Metoda za postavljanje zastavice pauza i njenu kontrolu
+     * @param stanje string naziv naredbe (kreni, stanje, pauza)
+     * @return poruka greške ili OK
+     */
     private String promjenaStanjaServera(String stanje) {
         String odgovor = "";
 

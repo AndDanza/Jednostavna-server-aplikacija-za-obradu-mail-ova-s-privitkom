@@ -6,6 +6,7 @@ import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
  * Klasa koja opisuje ponašanje i podatke evidencije o serveru
+ *
  * @author Andrea
  */
 public class Evidencija implements Serializable {
@@ -19,7 +20,9 @@ public class Evidencija implements Serializable {
     private long brojObavljenihSerijalizacija = 0;
 
     /**
-     * Konstruktor koji na temelju dobivene konfiguracije (učitane evidencije) inicijalizira objekt
+     * Konstruktor koji na temelju dobivene konfiguracije (učitane evidencije)
+     * inicijalizira objekt
+     *
      * @param evidencijaRada učitana evidencije u objekt konfiguracije
      */
     public Evidencija(Konfiguracija evidencijaRada) {
@@ -33,18 +36,20 @@ public class Evidencija implements Serializable {
     }
 
     /**
-     * Konstruktor bez argumenata 
+     * Konstruktor bez argumenata
      */
     public Evidencija() {
     }
-    
+
     /**
-     * Metoda za kreiranje <code>Properties</code> objekta u kojem su pohranjeni podaci za naknadnu pohranu u konfiguraciju (datoteku evidencije)
-     * @return objekt tipa <code>Properties</code> 
+     * Metoda za kreiranje <code>Properties</code> objekta u kojem su pohranjeni
+     * podaci za naknadnu pohranu u konfiguraciju (datoteku evidencije)
+     *
+     * @return objekt tipa <code>Properties</code>
      */
-    public Properties vratiPropertiesEvidencije(){
-        setUkupanBrojZahtjeva(brojNedozvoljenihZahtjeva+brojNeispravnihZahtjeva+brojPrekinutihZahtjeva+brojUspjesnihZahtjeva);
-        
+    public Properties vratiPropertiesEvidencije() {
+        setUkupanBrojZahtjeva(brojNedozvoljenihZahtjeva + brojNeispravnihZahtjeva + brojPrekinutihZahtjeva + brojUspjesnihZahtjeva);
+
         Properties prop = new Properties();
         prop.setProperty("ukupan.broj.zahtjeva", String.valueOf(this.ukupanBrojZahtjeva));
         prop.setProperty("broj.neispravnih.zahtjeva", String.valueOf(this.brojNeispravnihZahtjeva));
@@ -55,9 +60,10 @@ public class Evidencija implements Serializable {
         prop.setProperty("broj.obavljenih.serijalizacija", String.valueOf(this.brojObavljenihSerijalizacija));
         return prop;
     }
-    
+
     /**
      * Getter ukupnog broja zahtjeva
+     *
      * @return ukupan broj zahtjeva tipa <code>long</code>
      */
     public long getUkupanBrojZahtjeva() {
@@ -66,7 +72,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog broja zahtjeva
-     * @param ukupanBrojZahtjeva vrijednost koja se postavlja u varijablu <code>ukupanBrojZahtjeva</code>
+     *
+     * @param ukupanBrojZahtjeva vrijednost koja se postavlja u varijablu
+     * <code>ukupanBrojZahtjeva</code>
      */
     public void setUkupanBrojZahtjeva(long ukupanBrojZahtjeva) {
         this.ukupanBrojZahtjeva = ukupanBrojZahtjeva;
@@ -74,6 +82,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter broja neispravnih zahtjeva
+     *
      * @return broj neispravnih zahtjeva tipa <code>long</code>
      */
     public long getBrojNeispravnihZahtjeva() {
@@ -82,7 +91,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog broja neispravnih zahtjeva
-     * @param brojNeispravnihZahtjeva vrijednost koja se postavlja u varijablu <code>brojNeispravnihZahtjeva</code>
+     *
+     * @param brojNeispravnihZahtjeva vrijednost koja se postavlja u varijablu
+     * <code>brojNeispravnihZahtjeva</code>
      */
     public void setBrojNeispravnihZahtjeva(long brojNeispravnihZahtjeva) {
         this.brojNeispravnihZahtjeva = brojNeispravnihZahtjeva;
@@ -90,6 +101,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter broja nedozvoljenih zahtjeva
+     *
      * @return broj nedozvoljenih zahtjeva tipa <code>long</code>
      */
     public long getBrojNedozvoljenihZahtjeva() {
@@ -98,7 +110,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog nedozvoljenih zahtjeva
-     * @param brojNedozvoljenihZahtjeva vrijednost koja se postavlja u varijablu <code>brojNedozvoljenihZahtjeva</code>
+     *
+     * @param brojNedozvoljenihZahtjeva vrijednost koja se postavlja u varijablu
+     * <code>brojNedozvoljenihZahtjeva</code>
      */
     public void setBrojNedozvoljenihZahtjeva(long brojNedozvoljenihZahtjeva) {
         this.brojNedozvoljenihZahtjeva = brojNedozvoljenihZahtjeva;
@@ -106,6 +120,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter broja uspješnih zahtjeva
+     *
      * @return broj uspješnih zahtjeva tipa <code>long</code>
      */
     public long getBrojUspjesnihZahtjeva() {
@@ -114,7 +129,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog uspješnih zahtjeva
-     * @param brojUpsjesnihZahtjeva vrijednost koja se postavlja u varijablu <code>brojUpsjesnihZahtjeva</code>
+     *
+     * @param brojUpsjesnihZahtjeva vrijednost koja se postavlja u varijablu
+     * <code>brojUpsjesnihZahtjeva</code>
      */
     public void setBrojUspjesnihZahtjeva(long brojUpsjesnihZahtjeva) {
         this.brojUspjesnihZahtjeva = brojUpsjesnihZahtjeva;
@@ -122,6 +139,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter broja prekinutih zahtjeva
+     *
      * @return broj prekinutih zahtjeva tipa <code>long</code>
      */
     public long getBrojPrekinutihZahtjeva() {
@@ -130,7 +148,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog prekinutih zahtjeva
-     * @param brojPrekinutihZahtjeva vrijednost koja se postavlja u varijablu <code>brojPrekinutihZahtjeva</code>
+     *
+     * @param brojPrekinutihZahtjeva vrijednost koja se postavlja u varijablu
+     * <code>brojPrekinutihZahtjeva</code>
      */
     public void setBrojPrekinutihZahtjeva(long brojPrekinutihZahtjeva) {
         this.brojPrekinutihZahtjeva = brojPrekinutihZahtjeva;
@@ -138,6 +158,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter ukupno vrijeme rada radnih dretvi
+     *
      * @return ukupno vrijeme rada radnih dretvi tipa <code>long</code>
      */
     public long getUkupnoVrijemeRadaRadnihDretvi() {
@@ -146,7 +167,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog vremena rada radnih dretvi
-     * @param ukupnoVrijemeRadaRadnihDretvi vrijednost koja se postavlja u varijablu <code>ukupnoVrijemeRadaRadnihDretvi</code>
+     *
+     * @param ukupnoVrijemeRadaRadnihDretvi vrijednost koja se postavlja u
+     * varijablu <code>ukupnoVrijemeRadaRadnihDretvi</code>
      */
     public void setUkupnoVrijemeRadaRadnihDretvi(long ukupnoVrijemeRadaRadnihDretvi) {
         this.ukupnoVrijemeRadaRadnihDretvi = ukupnoVrijemeRadaRadnihDretvi;
@@ -154,6 +177,7 @@ public class Evidencija implements Serializable {
 
     /**
      * Getter broja obavljenih serijalizacija
+     *
      * @return broj obavljenih serijalizacija tipa <code>long</code>
      */
     public long getBrojObavljenihSerijalizacija() {
@@ -162,7 +186,9 @@ public class Evidencija implements Serializable {
 
     /**
      * Setter ukupnog broja obavljenih serijalizacija
-     * @param brojObavljenihSerijalizacija vrijednost koja se postavlja u varijablu <code>brojObavljenihSerijalizacija</code>
+     *
+     * @param brojObavljenihSerijalizacija vrijednost koja se postavlja u
+     * varijablu <code>brojObavljenihSerijalizacija</code>
      */
     public void setBrojObavljenihSerijalizacija(long brojObavljenihSerijalizacija) {
         this.brojObavljenihSerijalizacija = brojObavljenihSerijalizacija;

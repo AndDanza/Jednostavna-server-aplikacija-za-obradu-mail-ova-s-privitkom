@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  * Klasa klijenta koji ima ograničene komande prema serveru
+ *
  * @author Andrea
  */
 public class KlijentSustava extends KorisnikSustava {
@@ -34,7 +35,7 @@ public class KlijentSustava extends KorisnikSustava {
                 if (iot.contains("OK; ZN-KODOVI")) {
                     iot = iot.split("\n")[1];
                 }
-                this.komanda = this.komanda + ";" +iot+";";
+                this.komanda = this.komanda + ";" + iot + ";";
             }
 
             posaljiKomandu(socket, this.komanda);
@@ -49,11 +50,11 @@ public class KlijentSustava extends KorisnikSustava {
 
     /**
      * Učitavanje iot datoteke za slanje
+     *
      * @param datoteka datoteka koju je potrebno učitati
      * @return string sadržaja datoteke
      */
     private String deserijalizirajZapisZaSlanje(String datoteka) {
-        //TODO kod bin datoteke bi moglo sve past, nakoniot kreiranja probat preko objekta ovoodradit
         String datotekaIOT = "";
         try {
             File datIOT = new File(datoteka);
