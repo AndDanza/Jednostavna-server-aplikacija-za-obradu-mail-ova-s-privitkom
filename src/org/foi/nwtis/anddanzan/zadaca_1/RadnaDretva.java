@@ -4,9 +4,17 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
+import org.nwtis.anddanzan.konfiguracije.KonfiguracijaApstraktna;
+import org.nwtis.anddanzan.konfiguracije.NeispravnaKonfiguracija;
+import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
  * Dretva koja zaprima iobrađuje zahtjeve korisnika
@@ -262,15 +270,20 @@ class RadnaDretva extends Thread {
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
 
+        Konfiguracija evidencija;
         try {
-            byte[] encoded = Files.readAllBytes(Paths.get(konf.dajPostavku(datoteka)));
-            header += encoded.length + "<CRLF>\n";
-            deserijaliziranaEvidencija = new String(encoded, kodZnakova);
-            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim();
-        } catch (IOException ex) {
-            return "ERROR 15; Doslo je do greske pri dohvacanju evidencijem rada!";
-        }
+            evidencija = KonfiguracijaApstraktna.preuzmiKonfiguraciju(konf.dajPostavku(datoteka));
+            Properties prop = evidencija.dajSvePostavke();
 
+            Set<Entry<Object, Object>> entries = prop.entrySet();
+            for (Entry<Object, Object> entry : entries) {
+                deserijaliziranaEvidencija += entry.getKey() + " = " + entry.getValue()+"\n";
+            }
+            header += deserijaliziranaEvidencija.getBytes().length + "<CRLF>\n";
+            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim()+";";
+        } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
+            Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return deserijaliziranaEvidencija;
     }
 
