@@ -185,12 +185,29 @@ public class ServerSustava {
      */
     public synchronized static String popuniListuUredaja(String result) {
         IOT iotUredaj = parsirajJson(result);
+        List<InterfaceIOT> dodaj = new ArrayList<>();
 
         if (iotUredaj != null) {
             if (!ServerSustava.uredajiIOT.isEmpty()) {
                 for (IOT iot : ServerSustava.uredajiIOT) {
-                    if (iot.dohvatiId() == iotUredaj.dohvatiId()) {
-                        iot.azurirajMjerenjeUredaja(iotUredaj.dohvatiMjerenjaUredaja());
+                    if (iot.dohvatiId() == iotUredaj.dohvatiId()) { //pronađi iotuređaj prema id-u
+                        for (InterfaceIOT mjerenjeServer : iot.dohvatiMjerenjaUredaja()) { //dohvai listu mjerenja
+                            for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()) { //klijentovi podaci mjerenja
+                                //ažuriranje se vrši prema datumu mjerenja
+                                if (mjerenjeServer.dohvatiVrijemeMilisekunde() == mjerenjeKlijent.dohvatiVrijemeMilisekunde()) {
+                                    mjerenjeServer.postaviLokaciju(mjerenjeKlijent.dohvatiLokaciju());
+                                    mjerenjeServer.postaviVrijednostMjerenja(mjerenjeKlijent.dohvatiVrijednostMjerenja());
+                                    mjerenjeServer.postaviVrijemeMilisekunde(mjerenjeKlijent.dohvatiVrijemeMilisekunde());
+                                    //označi da je mjerenje ažurirano
+                                    mjerenjeKlijent.postaviLokaciju(null);
+                                }
+                            }
+                        }
+                        for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()){
+                            if(mjerenjeKlijent.dohvatiLokaciju() != null)
+                                iot.dodajMjerenjeUredaja(mjerenjeKlijent);
+                        }
+                            
                         return "OK 21;";
                     }
                 }

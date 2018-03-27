@@ -61,11 +61,15 @@ public class IOT implements Serializable {
      * Metoda za azuriranje zapisa objekta s novim podacima (dodaje na kraj
      * postojeće liste)
      *
-     * @param novaMjerenjaUredaja lista novih mjerenja koje je potrebno dodati
+     * @param novoMjerenjaUredaja lista novih mjerenja koje je potrebno dodati
      */
-    public void azurirajMjerenjeUredaja(List<InterfaceIOT> novaMjerenjaUredaja) {
-        for (InterfaceIOT obj : novaMjerenjaUredaja) {
-            this.mjerenjaUredaja.add(obj);
+    public void azurirajMjerenjeUredaja(InterfaceIOT novoMjerenjaUredaja) {
+        for (InterfaceIOT mjerenjeServer : this.mjerenjaUredaja) {
+            if (mjerenjeServer.dohvatiVrijemeMilisekunde() == novoMjerenjaUredaja.dohvatiVrijemeMilisekunde()) {
+                mjerenjeServer.postaviLokaciju(novoMjerenjaUredaja.dohvatiLokaciju());
+                mjerenjeServer.postaviVrijednostMjerenja(novoMjerenjaUredaja.dohvatiVrijednostMjerenja());
+                mjerenjeServer.postaviVrijemeMilisekunde(novoMjerenjaUredaja.dohvatiVrijemeMilisekunde());
+            }
         }
     }
 

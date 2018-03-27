@@ -83,8 +83,8 @@ public class IOTTemperatura implements InterfaceIOT {
      * @return String vrijednost vrijednosti mjerenja
      */
     @Override
-    public String dohvatiVrijednostMjerenja() {
-        return String.valueOf(this.temperatura);
+    public int dohvatiVrijednostMjerenja() {
+        return this.temperatura;
     }
 
     /**

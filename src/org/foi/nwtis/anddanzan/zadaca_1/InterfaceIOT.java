@@ -14,7 +14,7 @@ interface InterfaceIOT {
      * @return string vrijednost integera koji predstavlja mjerenje određene
      * vrijednosti
      */
-    public String dohvatiVrijednostMjerenja();
+    public int dohvatiVrijednostMjerenja();
 
     /**
      * Postavljanje vrijednosti u varijablu

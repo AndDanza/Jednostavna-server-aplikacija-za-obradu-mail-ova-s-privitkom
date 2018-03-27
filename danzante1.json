@@ -2,29 +2,29 @@
     "id": 3,
     "mjerenjaUredaja": [
       {
-        "vlaga": 14,
+        "vlaga": 10,
         "lokacija": "PoÅ¾ega",
         "vrijemeMilisekunde": 1522081901012
       },
       {
-        "vlaga": 17,
+        "temperatura": 0,
         "lokacija": "PoÅ¾ega",
-        "vrijemeMilisekunde": 1522081901015
+        "vrijemeMilisekunde": 1522081902015
       },
       {
-        "vlaga": 9,
+        "brzinaVjetra": 0,
         "lokacija": "PoÅ¾ega",
-        "vrijemeMilisekunde": 1522081901007
+        "vrijemeMilisekunde": 1522081901107
       },
       {
-        "vlaga": 16,
+        "vlaga": 120,
         "lokacija": "PoÅ¾ega",
-        "vrijemeMilisekunde": 1522081901014
+        "vrijemeMilisekunde": 1522081901114
       },
       {
-        "vlaga": 19,
+        "brzinaVjetra": 115,
         "lokacija": "PoÅ¾ega",
-        "vrijemeMilisekunde": 1522081901017
+        "vrijemeMilisekunde": 152208191127
       }
     ]
   }

@@ -88,8 +88,8 @@ public class IOTVLaga implements InterfaceIOT {
      * @return vraća <code>int</code> varijablu s vrijednosti temeprature
      */
     @Override
-    public String dohvatiVrijednostMjerenja() {
-        return Integer.toString(this.vlaga);
+    public int dohvatiVrijednostMjerenja() {
+        return this.vlaga;
     }
 
     /**

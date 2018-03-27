@@ -83,8 +83,8 @@ public class IOTVjetar implements InterfaceIOT {
      * @return String vrijednost vrijednosti mjerenja
      */
     @Override
-    public String dohvatiVrijednostMjerenja() {
-        return Integer.toString(this.brzinaVjetra);
+    public int dohvatiVrijednostMjerenja() {
+        return this.brzinaVjetra;
     }
 
     /**
