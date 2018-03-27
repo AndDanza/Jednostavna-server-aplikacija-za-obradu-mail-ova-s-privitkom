@@ -67,6 +67,7 @@ public class Evidencija implements Serializable {
      * @return ukupan broj zahtjeva tipa <code>long</code>
      */
     public long getUkupanBrojZahtjeva() {
+        setUkupanBrojZahtjeva(brojNedozvoljenihZahtjeva + brojNeispravnihZahtjeva + brojPrekinutihZahtjeva + brojUspjesnihZahtjeva);
         return ukupanBrojZahtjeva;
     }
 
