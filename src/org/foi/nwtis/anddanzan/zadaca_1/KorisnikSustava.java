@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -94,7 +95,7 @@ public class KorisnikSustava {
             outputStream.flush();
             socket.shutdownOutput();
         } catch (IOException ex) {
-            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR; Server ne odgovara");
         }
     }
 
@@ -105,7 +106,7 @@ public class KorisnikSustava {
      * @param socket Kreirani socket korisnika prema serveru
      * @return string odgovora servera
      */
-    protected String zaprimiOdgovor(Socket socket) {
+    protected String zaprimiOdgovor(Socket socket){
         InputStream inputStream = null;
         StringBuffer stringBuffer = null;
         try {
@@ -122,7 +123,7 @@ public class KorisnikSustava {
             }
             socket.shutdownInput();
         } catch (IOException ex) {
-            Logger.getLogger(KorisnikSustava.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR; Server ne odgovara");
         }
 
         return stringBuffer.toString();

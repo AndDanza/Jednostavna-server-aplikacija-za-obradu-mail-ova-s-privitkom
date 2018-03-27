@@ -42,6 +42,11 @@ public class ServerSustava {
      * Statična lista objekata za zapis podataka s IOT uređaja
      */
     public static List<IOT> uredajiIOT = new ArrayList<>();
+    /**
+     * Zastavica koja se postavlja na false kad administrator pozove naredbu
+     * zaustavi
+     */
+    public static Boolean radi = true;
 
     /**
      * @param args the command line arguments
@@ -59,6 +64,10 @@ public class ServerSustava {
 
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
             System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -68,49 +77,52 @@ public class ServerSustava {
      * @param konf konfiguracijska datoteka učitana u objekt
      * <code>Konfiguracija</code> (koristi Properties i ime datoteke)
      */
-    private void pokreniPosluzitelj(Konfiguracija konf) {
+    private synchronized void pokreniPosluzitelj(Konfiguracija konf) throws IOException, InterruptedException {
         int port = Integer.parseInt(konf.dajPostavku("port"));
         int maxBrZahtjevaCekanje = Integer.parseInt(konf.dajPostavku("max.broj.zahtjeva.cekanje"));
         int maxBrRadnihDretvi = Integer.parseInt(konf.dajPostavku("max.broj.radnih.dretvi"));
 
         pokreniEvidentiranje(konf);
 
-        try {
-            ServerSocket serverSocket = new ServerSocket(port, maxBrZahtjevaCekanje);
+        ServerSocket serverSocket = new ServerSocket(port, maxBrZahtjevaCekanje);
 
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Korisnik se spojio!");
+        while (ServerSustava.radi) {
+            Socket socket = serverSocket.accept();
+            System.out.println("Korisnik se spojio!");
 
-                //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
-                //Smanji broj aktivnih radnih dretvi kod servera sustava (-2 jer računa glavnu dretvu, a i brojanje kreće od 0)
-                ServerSustava.brojacDretvi = Thread.activeCount() - 2;
+            //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
+            //Smanji broj aktivnih radnih dretvi kod servera sustava (-2 jer računa glavnu dretvu, a i brojanje kreće od 0)
+            ServerSustava.brojacDretvi = Thread.activeCount() - 2;
 
-                //6bitni redni broj dretve
-                if (brojacDretvi >= 64) {
-                    brojacDretvi = 0;
-                }
-
-                if (brojacDretvi == maxBrRadnihDretvi) {
-                    //Kreirat metodu za slanje poruke outputStreamom u socket
-                    System.out.println("Korisnik odspojen - nema dretve");
-                    ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
-
-                    //Ažuriraj evidenciju rada
-                    ServerSustava.azurirajEvidenciju("prekinuti");
-
-                }
-                else {
-                    RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + brojacDretvi, konf);
-                    radnaDretva.start();
-
-                    //ukupan broj dretvi
-                    ServerSustava.azurirajEvidenciju("brojDretvi");
-                }
+            //6bitni redni broj dretve
+            if (brojacDretvi >= 64) {
+                brojacDretvi = 0;
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
+
+            if (brojacDretvi == maxBrRadnihDretvi) {
+                //Kreirat metodu za slanje poruke outputStreamom u socket
+                System.out.println("Korisnik odspojen - nema dretve");
+                ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
+
+                //Ažuriraj evidenciju rada
+                ServerSustava.azurirajEvidenciju("prekinuti");
+
+            }
+            else {
+                RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + brojacDretvi, konf);
+                radnaDretva.start();
+
+                //ukupan broj dretvi
+                ServerSustava.azurirajEvidenciju("brojDretvi");
+            }
+
+            //inače server ostane radit
+            Thread.sleep(1000);
         }
+
+        this.notifyAll();
+
+        System.exit(0);
     }
 
     /**
@@ -203,11 +215,12 @@ public class ServerSustava {
                                 }
                             }
                         }
-                        for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()){
-                            if(mjerenjeKlijent.dohvatiLokaciju() != null)
+                        for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()) {
+                            if (mjerenjeKlijent.dohvatiLokaciju() != null) {
                                 iot.dodajMjerenjeUredaja(mjerenjeKlijent);
+                            }
                         }
-                            
+
                         return "OK 21;";
                     }
                 }

@@ -238,7 +238,7 @@ class RadnaDretva extends Thread {
             }
             //TODO OK;2 - dobio zaustavi zahtjev, ali još nije ugašen u potpunosti
             else if (komanda.contains("zaustavi")) {
-                return "OK;zaustavi";
+                return promjenaStanjaServera("zaustavi");
             }
             //TODO Pročitat misli da saznamo šta radi - forum
             else if (komanda.contains("evidencija")) {
@@ -325,12 +325,22 @@ class RadnaDretva extends Thread {
             odgovor = RadnaDretva.pauza == false ? "OK;" : "ERROR 11; Server JE u stanju pauze!";
             RadnaDretva.pauza = true;
         }
-        else {
+        else if (stanje.equals("stanje")) {
+            synchronized(ServerSustava.radi){
+                if(ServerSustava.radi)
+                    return "OK;2";
+            }
             if (RadnaDretva.pauza) {
-                return "OK;0";
+                odgovor = "OK;0";
             }
             else {
-                return "OK;1";
+                odgovor = "OK;1";
+            }
+        }
+        else{
+            synchronized(ServerSustava.radi){
+                ServerSustava.radi = false;
+                odgovor = "OK;";
             }
         }
 

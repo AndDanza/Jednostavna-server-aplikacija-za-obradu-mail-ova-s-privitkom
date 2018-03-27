@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
@@ -39,11 +40,13 @@ public class KlijentSustava extends KorisnikSustava {
             }
 
             posaljiKomandu(socket, this.komanda);
+            System.out.println("Komanda: "+this.komanda);
 
             String odgovor = zaprimiOdgovor(socket);
             System.out.println("Odgovor: " + odgovor);
 
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) {
             System.out.println("ERROR 02; Krivi port ili adresa u naredbi");
         }
     }
