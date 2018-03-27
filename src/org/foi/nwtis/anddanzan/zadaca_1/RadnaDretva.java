@@ -277,10 +277,10 @@ class RadnaDretva extends Thread {
 
             Set<Entry<Object, Object>> entries = prop.entrySet();
             for (Entry<Object, Object> entry : entries) {
-                deserijaliziranaEvidencija += entry.getKey() + " = " + entry.getValue()+"\n";
+                deserijaliziranaEvidencija += entry.getKey() + " = " + entry.getValue() + "\n";
             }
             header += deserijaliziranaEvidencija.getBytes().length + "<CRLF>\n";
-            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim()+";";
+            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim() + ";";
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
             Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -326,9 +326,8 @@ class RadnaDretva extends Thread {
             RadnaDretva.pauza = true;
         }
         else if (stanje.equals("stanje")) {
-            synchronized(ServerSustava.radi){
-                if(ServerSustava.radi)
-                    return "OK;2";
+            if (!ServerSustava.radi) {
+                return "OK;2";
             }
             if (RadnaDretva.pauza) {
                 odgovor = "OK;0";
@@ -337,11 +336,9 @@ class RadnaDretva extends Thread {
                 odgovor = "OK;1";
             }
         }
-        else{
-            synchronized(ServerSustava.radi){
-                ServerSustava.radi = false;
-                odgovor = "OK;";
-            }
+        else {
+            ServerSustava.radi = false;
+            odgovor = "OK;";
         }
 
         return odgovor;

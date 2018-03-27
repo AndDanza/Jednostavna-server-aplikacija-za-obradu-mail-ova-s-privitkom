@@ -120,6 +120,8 @@ public class ServerSustava {
             Thread.sleep(1000);
         }
 
+        pokreniEvidentiranje(konf);
+        
         this.notifyAll();
 
         System.exit(0);
