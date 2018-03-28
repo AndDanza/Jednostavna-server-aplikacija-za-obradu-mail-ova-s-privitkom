@@ -1,18 +1,5 @@
   {
     "id": 2,
-    "atributi": [
-      {
-        "temperatura": 0,
-		"redniBrojMjerenja": 15
-      },
-      {
-        "brzinaVjetra": 0,
-        "lokacija": "Pula",
-        "vrijemeMilisekunde": 1522081901107,
-		"smjerVjetra": "SSI"
-      },
-      {
-        "lokacija": "Varaždin"
-      }
-    ]
+	"lokacija":"Pula",
+	"temp":"25"
   }

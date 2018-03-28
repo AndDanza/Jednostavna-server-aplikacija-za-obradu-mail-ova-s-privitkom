@@ -3,6 +3,7 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.Set;
@@ -89,12 +90,7 @@ public class IOT implements Serializable {
 
         Set<String> keysKlijent = klijentProp.stringPropertyNames();
         for (String keyK : keysKlijent) {
-            if(this.atributi.containsKey(keyK)){
-                this.atributi.setProperty(keyK, klijentProp.getProperty(keyK));
-            }
-            else{
-                this.atributi.setProperty(keyK, klijentProp.getProperty(keyK));
-            }
+            this.atributi.setProperty(keyK, klijentProp.getProperty(keyK));
         }
     }
 
@@ -134,19 +130,23 @@ public class IOT implements Serializable {
      * @param result string jsona
      * @return IOT objekt popunjen podacima iz stringa jsona
      */
-    private static IOT parsirajJson(String result) {
-        Properties prop = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().fromJson(result, Properties.class);
+    private static IOT parsirajJson(String result) throws JsonSyntaxException {
+        try {
+            Properties prop = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().fromJson(result, Properties.class);
 
-        if (!prop.containsKey("id")) {
+            if (!prop.containsKey("id")) {
+                return null;
+            }
+            String id = prop.getProperty("id");
+            prop.remove("id");
+
+            IOT zapisKlijenta = new IOT(prop);
+            zapisKlijenta.setId(id);
+
+            return zapisKlijenta;
+        } catch (JsonSyntaxException ex) {
             return null;
         }
-        String id = prop.getProperty("id");
-        prop.remove("id");
-
-        IOT zapisKlijenta = new IOT(prop);
-        zapisKlijenta.setId(id);
-
-        return zapisKlijenta;
     }
 
     /**
