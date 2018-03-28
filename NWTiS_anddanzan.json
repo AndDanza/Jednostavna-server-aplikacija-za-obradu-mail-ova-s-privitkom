@@ -1,0 +1,10 @@
+{
+  "skup.kodova.znakova": "UTF-8",
+  "datoteka.evidencije.rada": "NWTiS_anddanzan_evidencija_rada.txt",
+  "interval.za.serijalizaciju": "60",
+  "port": "8000",
+  "max.broj.zahtjeva.cekanje": "5",
+  "admin.0.korisnik": "lozinka",
+  "datoteka.iot.zapisa": "NWTiS_anddanzan_iot.json",
+  "max.broj.radnih.dretvi": "3"
+}

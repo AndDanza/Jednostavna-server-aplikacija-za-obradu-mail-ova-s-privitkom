@@ -1,5 +1,5 @@
 #Konfiguracija NWTIS anddanzan
-#Tue Mar 27 10:14:27 CEST 2018
+#Wed Mar 28 23:22:02 CEST 2018
 ukupan.broj.zahtjeva=61
 broj.uspjesnih.zahtjeva=60
 broj.prekinutih.zahtjeva=1

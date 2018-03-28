@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Konfiguracija NWTIS anddanzan</comment>
+<entry key="skup.kodova.znakova">UTF-8</entry>
+<entry key="datoteka.evidencije.rada">NWTiS_anddanzan_evidencija_rada.txt</entry>
+<entry key="interval.za.serijalizaciju">60</entry>
+<entry key="port">8000</entry>
+<entry key="max.broj.zahtjeva.cekanje">5</entry>
+<entry key="admin.0.korisnik">lozinka</entry>
+<entry key="datoteka.iot.zapisa">NWTiS_anddanzan_iot.json</entry>
+<entry key="max.broj.radnih.dretvi">3</entry>
+</properties>
