@@ -1,7 +1,5 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,8 +82,7 @@ public class ServerSustava {
 
             //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
             //6bitni redni broj dretve
-            
-            if ((Thread.activeCount()-2) == maxBrRadnihDretvi) {
+            if ((Thread.activeCount() - 2) == maxBrRadnihDretvi) {
                 //Kreirat metodu za slanje poruke outputStreamom u socket
                 System.out.println("Korisnik odspojen - nema dretve");
                 ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
@@ -96,7 +93,7 @@ public class ServerSustava {
             }
             else {
                 RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + this.redniBrojDretvi, konf);
-                this.redniBrojDretvi = this.redniBrojDretvi >= 64 ? this.redniBrojDretvi = 0 : this.redniBrojDretvi+1;
+                this.redniBrojDretvi = this.redniBrojDretvi >= 64 ? this.redniBrojDretvi = 0 : this.redniBrojDretvi + 1;
                 radnaDretva.start();
 
                 //ukupan broj dretvi
@@ -159,23 +156,6 @@ public class ServerSustava {
         }
 
         return stringBuffer.toString();
-    }
-
-    //deserijalizacija IOT-a za slanje i učitavanje
-    /**
-     * Statična metoda za pohranu podataka iz liste IOTUređaja u datoteku
-     */
-    public static String serijalizirajIOT(Konfiguracija konf) {
-        Gson builder = new GsonBuilder().setPrettyPrinting().create();
-        String json = "";
-        synchronized (ServerSustava.uredajiIOT) {
-            json = builder.toJson(ServerSustava.uredajiIOT);
-        }
-        //json = jsonData.replace("\\\"", "");
-        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
-        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
-        header += json.getBytes().length + "<CRLF>\n";
-        return header + json + ";";
     }
 
     /**

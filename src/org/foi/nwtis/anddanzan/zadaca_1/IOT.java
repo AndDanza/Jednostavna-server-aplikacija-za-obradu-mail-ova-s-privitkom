@@ -1,11 +1,12 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import java.io.Serializable;
+import java.util.Properties;
+import java.util.Set;
+import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
 
 /**
  * Klasa za IOT uređaje za koje se pohranjuju podaci
@@ -14,32 +15,31 @@ import java.io.Serializable;
  */
 public class IOT implements Serializable {
 
-    int id;
+    String id;
     /**
      * Lista instanci objekata koji implementiraju InterfaceIOT s podacima o
      * mjerenjima uređaja
      */
-    JsonArray skupAtributa = null;
+    Properties atributi;
 
     /**
      * Konstruktor
      *
      * @param id Identifikator uređaja
-     * @param atributi lista json objekata s podacima (atributima) iot uređaja
+     * @param atributi Properties objekat s podacima (atributima) iot uređaja
      */
-    public IOT(int id, JsonArray atributi) {
-        this.id = id;
-        skupAtributa = atributi;
+    public IOT(Properties atributi) {
+        this.atributi = atributi;
     }
 
     /**
      * Getter za dohvaćanje liste objekata s podacima o mjerenju
      *
-     * @return vraća listu tipa <code>JsonArray</code> s atributima uređaja
+     * @return vraća listu tipa <code>Properties</code> s atributima uređaja
      * određenog iot uređaja
      */
-    public JsonArray getAtributi() {
-        return skupAtributa;
+    public Properties getAtributi() {
+        return atributi;
     }
 
     /**
@@ -47,20 +47,18 @@ public class IOT implements Serializable {
      *
      * @param atributi lista objekata s podacima koje je potrebo pohraniti
      */
-    public void setAtributi(JsonArray atributi) {
-        this.skupAtributa = atributi;
+    public void setAtributi(Properties atributi) {
+        this.atributi = atributi;
     }
 
     /**
      * Metoda za dodavanje pojedinog objekta IOT mjerenja
      *
-     * @param atribut objekat s podacima koje je potrebo pohraniti
+     * @param key
+     * @param vrijednost
      */
-    public void dodajAtribute(JsonArray atribut) {
-        for (JsonElement jsonElement : atribut) {
-            this.skupAtributa.add(jsonElement);
-        }
-
+    public void dodajAtribute(String key, String vrijednost) {
+        this.atributi.setProperty(key, vrijednost);
     }
 
     /**
@@ -68,17 +66,36 @@ public class IOT implements Serializable {
      *
      * @return vraća <code>int</code> varijablu s vrijednosti id-a
      */
-    public int getId() {
-        return id;
+    public String getId() {
+        return this.id;
     }
 
     /**
      * Setter za postavljane id-a
      *
-     * @param id dobiveni id zapisuje u arijablu klase
+     * @param id dobiveni id zapisuje u varijablu klase
      */
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * Metoda za ažuriranje atributa klase
+     *
+     * @param iotKlijenta atributi uređaja
+     */
+    private void azurirajAtribute(IOT iotKlijenta) {
+        Properties klijentProp = iotKlijenta.getAtributi();
+
+        Set<String> keysKlijent = klijentProp.stringPropertyNames();
+        for (String keyK : keysKlijent) {
+            if(this.atributi.containsKey(keyK)){
+                this.atributi.setProperty(keyK, klijentProp.getProperty(keyK));
+            }
+            else{
+                this.atributi.setProperty(keyK, klijentProp.getProperty(keyK));
+            }
+        }
     }
 
     /**
@@ -87,19 +104,14 @@ public class IOT implements Serializable {
      *
      * @param result jsonData objekt prikazan u varijabli tipa string
      */
-    public synchronized static String popuniListuUredaja(String result) {
-        IOT iotKlijenta = null;
-        try {
-            iotKlijenta = parsirajJson(result);
-        } catch (JsonSyntaxException ex) {
-            return "ERROR 21; Sadržaj IOT datoteke nije valjan";
-        }
+    public synchronized static String popuniAtribute(String result) {
+        IOT iotKlijenta = iotKlijenta = parsirajJson(result);
 
         if (iotKlijenta != null) {
             if (!ServerSustava.uredajiIOT.isEmpty()) {
                 for (IOT iotServera : ServerSustava.uredajiIOT) {
-                    if (iotServera.getId() == iotKlijenta.getId()) { //pronađi iotuređaj prema id-u
-                        iotServera.dodajAtribute(iotKlijenta.getAtributi());
+                    if (iotKlijenta.getId().equals(iotServera.getId())) {
+                        iotServera.azurirajAtribute(iotKlijenta);
                         return "OK 21;";
                     }
                 }
@@ -114,22 +126,57 @@ public class IOT implements Serializable {
         return "ERROR 21; Sadržaj IOT datoteke nije valjan";
 
     }
-    
+
     /**
      * Dobiveni json string (JsonObject) parsira se u obliku objekta IOT uređaja
-     * s listom json objekata koji predstavljaju atribute
+     * koji sadržava Properties u kojem je id obavezan
      *
      * @param result string jsona
      * @return IOT objekt popunjen podacima iz stringa jsona
      */
-    private static IOT parsirajJson(String result) throws JsonSyntaxException {
-        JsonParser parser = new JsonParser();
-        JsonObject jsonData = parser.parse(result).getAsJsonObject();
+    private static IOT parsirajJson(String result) {
+        Properties prop = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().fromJson(result, Properties.class);
 
-        int id = Integer.valueOf(jsonData.get("id").toString());
-        JsonArray atributi = jsonData.get("atributi").getAsJsonArray();
-        IOT zapisKlijenta = new IOT(id, atributi);
+        if (!prop.containsKey("id")) {
+            return null;
+        }
+        String id = prop.getProperty("id");
+        prop.remove("id");
+
+        IOT zapisKlijenta = new IOT(prop);
+        zapisKlijenta.setId(id);
 
         return zapisKlijenta;
+    }
+
+    /**
+     * Statična metoda za pohranu podataka iz liste IOTUređaja u string
+     *
+     * @param konf
+     */
+    public static String serijalizirajIOT(Konfiguracija konf) {
+        JsonArray lista = new JsonArray();
+        JsonObject objekt;
+
+        synchronized (ServerSustava.uredajiIOT) {
+            for (IOT uredaj : ServerSustava.uredajiIOT) {
+                objekt = new JsonObject();
+                objekt.addProperty("id", uredaj.getId());
+
+                Properties props = uredaj.getAtributi();
+                Set<String> keys = props.stringPropertyNames();
+                for (String key : keys) {
+                    objekt.addProperty(key, props.getProperty(key));
+                }
+
+                lista.add(objekt);
+            }
+        }
+
+        String json = lista.toString();
+        String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
+        String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
+        header += json.getBytes().length + "<CRLF>\n";
+        return header + json + ";";
     }
 }
