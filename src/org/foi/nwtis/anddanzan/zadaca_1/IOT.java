@@ -38,7 +38,7 @@ public class IOT implements Serializable {
      * @return vraća listu tipa <code>JsonArray</code> s atributima uređaja
      * određenog iot uređaja
      */
-    public JsonArray dohvatiAtribute() {
+    public JsonArray getAtributi() {
         return skupAtributa;
     }
 
@@ -47,7 +47,7 @@ public class IOT implements Serializable {
      *
      * @param atributi lista objekata s podacima koje je potrebo pohraniti
      */
-    public void postaviAtribute(JsonArray atributi) {
+    public void setAtributi(JsonArray atributi) {
         this.skupAtributa = atributi;
     }
 
@@ -68,7 +68,7 @@ public class IOT implements Serializable {
      *
      * @return vraća <code>int</code> varijablu s vrijednosti id-a
      */
-    public int dohvatiId() {
+    public int getId() {
         return id;
     }
 
@@ -77,7 +77,7 @@ public class IOT implements Serializable {
      *
      * @param id dobiveni id zapisuje u arijablu klase
      */
-    public void postaviId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -98,8 +98,8 @@ public class IOT implements Serializable {
         if (iotKlijenta != null) {
             if (!ServerSustava.uredajiIOT.isEmpty()) {
                 for (IOT iotServera : ServerSustava.uredajiIOT) {
-                    if (iotServera.dohvatiId() == iotKlijenta.dohvatiId()) { //pronađi iotuređaj prema id-u
-                        iotServera.dodajAtribute(iotKlijenta.dohvatiAtribute());
+                    if (iotServera.getId() == iotKlijenta.getId()) { //pronađi iotuređaj prema id-u
+                        iotServera.dodajAtribute(iotKlijenta.getAtributi());
                         return "OK 21;";
                     }
                 }

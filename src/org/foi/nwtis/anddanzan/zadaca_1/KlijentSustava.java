@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;

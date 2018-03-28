@@ -1,20 +1,9 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.nwtis.anddanzan.konfiguracije.Konfiguracija;
-import org.nwtis.anddanzan.konfiguracije.KonfiguracijaApstraktna;
-import org.nwtis.anddanzan.konfiguracije.NeispravnaKonfiguracija;
-import org.nwtis.anddanzan.konfiguracije.NemaKonfiguracije;
 
 /**
  * Dretva koja zaprima iobrađuje zahtjeve korisnika
