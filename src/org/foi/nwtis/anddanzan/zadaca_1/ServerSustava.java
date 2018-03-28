@@ -2,10 +2,6 @@ package org.foi.nwtis.anddanzan.zadaca_1;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,12 +28,6 @@ public class ServerSustava {
      * dretve mogle pristupat podacima
      */
     public static Evidencija evidencija;
-
-    /**
-     * Broj dretvi u stustavu trenutno.
-     */
-    public static int brojacDretvi = 0;
-
     /**
      * Statična lista objekata za zapis podataka s IOT uređaja
      */
@@ -47,6 +37,10 @@ public class ServerSustava {
      * zaustavi
      */
     public static Boolean radi = true;
+    /**
+     * Redni broj dretve
+     */
+    public int redniBrojDretvi = 0;
 
     /**
      * @param args the command line arguments
@@ -91,15 +85,9 @@ public class ServerSustava {
             System.out.println("Korisnik se spojio!");
 
             //Sleep(n) - može i tu, ali onda server svakih  milisekundi prihvaća zahtjev
-            //Smanji broj aktivnih radnih dretvi kod servera sustava (-2 jer računa glavnu dretvu, a i brojanje kreće od 0)
-            ServerSustava.brojacDretvi = Thread.activeCount() - 2;
-
             //6bitni redni broj dretve
-            if (brojacDretvi >= 64) {
-                brojacDretvi = 0;
-            }
-
-            if (brojacDretvi == maxBrRadnihDretvi) {
+            
+            if ((Thread.activeCount()-2) == maxBrRadnihDretvi) {
                 //Kreirat metodu za slanje poruke outputStreamom u socket
                 System.out.println("Korisnik odspojen - nema dretve");
                 ServerSustava.posaljiOdgovor(socket, "ERROR 01; Nema raspolozive radne dretve!");
@@ -109,7 +97,8 @@ public class ServerSustava {
 
             }
             else {
-                RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + brojacDretvi, konf);
+                RadnaDretva radnaDretva = new RadnaDretva(socket, "anddanzan-" + this.redniBrojDretvi, konf);
+                this.redniBrojDretvi = this.redniBrojDretvi >= 64 ? this.redniBrojDretvi = 0 : this.redniBrojDretvi+1;
                 radnaDretva.start();
 
                 //ukupan broj dretvi
@@ -121,7 +110,7 @@ public class ServerSustava {
         }
 
         pokreniEvidentiranje(konf);
-        
+
         this.notifyAll();
 
         System.exit(0);
@@ -189,87 +178,6 @@ public class ServerSustava {
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
         header += json.getBytes().length + "<CRLF>\n";
         return header + json + ";";
-    }
-
-    /**
-     * Metoda za parsiranje stringa jsonData-a i punjenje liste IOT uređaja
-     * objektima
-     *
-     * @param result jsonData objekt prikazan u varijabli tipa string
-     */
-    public synchronized static String popuniListuUredaja(String result) {
-        IOT iotUredaj = parsirajJson(result);
-        List<InterfaceIOT> dodaj = new ArrayList<>();
-
-        if (iotUredaj != null) {
-            if (!ServerSustava.uredajiIOT.isEmpty()) {
-                for (IOT iot : ServerSustava.uredajiIOT) {
-                    if (iot.dohvatiId() == iotUredaj.dohvatiId()) { //pronađi iotuređaj prema id-u
-                        for (InterfaceIOT mjerenjeServer : iot.dohvatiMjerenjaUredaja()) { //dohvai listu mjerenja
-                            for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()) { //klijentovi podaci mjerenja
-                                //ažuriranje se vrši prema datumu mjerenja
-                                if (mjerenjeServer.dohvatiVrijemeMilisekunde() == mjerenjeKlijent.dohvatiVrijemeMilisekunde()) {
-                                    mjerenjeServer.postaviLokaciju(mjerenjeKlijent.dohvatiLokaciju());
-                                    mjerenjeServer.postaviVrijednostMjerenja(mjerenjeKlijent.dohvatiVrijednostMjerenja());
-                                    mjerenjeServer.postaviVrijemeMilisekunde(mjerenjeKlijent.dohvatiVrijemeMilisekunde());
-                                    //označi da je mjerenje ažurirano
-                                    mjerenjeKlijent.postaviLokaciju(null);
-                                }
-                            }
-                        }
-                        for (InterfaceIOT mjerenjeKlijent : iotUredaj.dohvatiMjerenjaUredaja()) {
-                            if (mjerenjeKlijent.dohvatiLokaciju() != null) {
-                                iot.dodajMjerenjeUredaja(mjerenjeKlijent);
-                            }
-                        }
-
-                        return "OK 21;";
-                    }
-                }
-                ServerSustava.uredajiIOT.add(iotUredaj);
-                return "OK 20";
-            }
-            else {
-                ServerSustava.uredajiIOT.add(iotUredaj);
-                return "OK 20";
-            }
-        }
-        return "ERROR 21; Sadržaj IOT datoteke nije valjan";
-
-    }
-
-    /**
-     * Dobiveni json string (JsonObject) parsira se u IOT objekt s listom
-     * objekata koji implementiraju InterfaceIOT
-     *
-     * @param result string jsona
-     * @return IOT objekt popunjen podacima iz stringa jsona
-     */
-    private static IOT parsirajJson(String result) {
-        JsonParser parser = new JsonParser();
-        JsonObject jsonData = parser.parse(result).getAsJsonObject();
-
-        int id = Integer.valueOf(jsonData.get("id").toString());
-        IOT zapisKlijenta = new IOT(id);
-
-        JsonArray podaci = jsonData.get("mjerenjaUredaja").getAsJsonArray();
-        Gson builder = new GsonBuilder().create();
-        for (JsonElement jsonElement : podaci) {
-            JsonObject json = (JsonObject) jsonElement;
-            InterfaceIOT objekt = null;
-            if (json.has("temperatura")) {
-                objekt = builder.fromJson(json, IOTTemperatura.class);
-            }
-            else if (json.has("vlaga")) {
-                objekt = builder.fromJson(json, IOTVLaga.class);
-            }
-            else if (json.has("brzinaVjetra")) {
-                objekt = builder.fromJson(json, IOTVjetar.class);
-            }
-            zapisKlijenta.dodajMjerenjeUredaja(objekt);
-        }
-
-        return zapisKlijenta;
     }
 
     /**

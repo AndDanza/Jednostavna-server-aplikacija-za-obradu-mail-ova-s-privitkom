@@ -1,8 +1,11 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Klasa za IOT uređaje za koje se pohranjuju podaci
@@ -16,61 +19,48 @@ public class IOT implements Serializable {
      * Lista instanci objekata koji implementiraju InterfaceIOT s podacima o
      * mjerenjima uređaja
      */
-    List<InterfaceIOT> mjerenjaUredaja = null;
+    JsonArray skupAtributa = null;
 
     /**
      * Konstruktor
      *
      * @param id Identifikator uređaja
+     * @param atributi lista json objekata s podacima (atributima) iot uređaja
      */
-    public IOT(int id) {
+    public IOT(int id, JsonArray atributi) {
         this.id = id;
-        mjerenjaUredaja = new ArrayList<>();
+        skupAtributa = atributi;
     }
 
     /**
      * Getter za dohvaćanje liste objekata s podacima o mjerenju
      *
-     * @return vraća listu tipa <code>InterfaceIOT</code> listu s objektima
+     * @return vraća listu tipa <code>JsonArray</code> s atributima uređaja
      * određenog iot uređaja
      */
-    public List<InterfaceIOT> dohvatiMjerenjaUredaja() {
-        return mjerenjaUredaja;
+    public JsonArray dohvatiAtribute() {
+        return skupAtributa;
     }
 
     /**
-     * Setter za punjenje liste objekata IOT uređaja
+     * Setter za punjenje liste atributa IOT uređaja
      *
-     * @param mjerenjaUredaja lista objekata s podacima koje je potrebo
-     * pohraniti
+     * @param atributi lista objekata s podacima koje je potrebo pohraniti
      */
-    public void postaviMjerenjaUredaja(List<InterfaceIOT> mjerenjaUredaja) {
-        this.mjerenjaUredaja = mjerenjaUredaja;
+    public void postaviAtribute(JsonArray atributi) {
+        this.skupAtributa = atributi;
     }
 
     /**
      * Metoda za dodavanje pojedinog objekta IOT mjerenja
      *
-     * @param mjerenjeUredaja objekat s podacima koje je potrebo pohraniti
+     * @param atribut objekat s podacima koje je potrebo pohraniti
      */
-    public void dodajMjerenjeUredaja(InterfaceIOT mjerenjeUredaja) {
-        this.mjerenjaUredaja.add(mjerenjeUredaja);
-    }
-
-    /**
-     * Metoda za azuriranje zapisa objekta s novim podacima (dodaje na kraj
-     * postojeće liste)
-     *
-     * @param novoMjerenjaUredaja lista novih mjerenja koje je potrebno dodati
-     */
-    public void azurirajMjerenjeUredaja(InterfaceIOT novoMjerenjaUredaja) {
-        for (InterfaceIOT mjerenjeServer : this.mjerenjaUredaja) {
-            if (mjerenjeServer.dohvatiVrijemeMilisekunde() == novoMjerenjaUredaja.dohvatiVrijemeMilisekunde()) {
-                mjerenjeServer.postaviLokaciju(novoMjerenjaUredaja.dohvatiLokaciju());
-                mjerenjeServer.postaviVrijednostMjerenja(novoMjerenjaUredaja.dohvatiVrijednostMjerenja());
-                mjerenjeServer.postaviVrijemeMilisekunde(novoMjerenjaUredaja.dohvatiVrijemeMilisekunde());
-            }
+    public void dodajAtribute(JsonArray atribut) {
+        for (JsonElement jsonElement : atribut) {
+            this.skupAtributa.add(jsonElement);
         }
+
     }
 
     /**
@@ -89,5 +79,57 @@ public class IOT implements Serializable {
      */
     public void postaviId(int id) {
         this.id = id;
+    }
+
+    /**
+     * Metoda za parsiranje stringa jsonData-a i punjenje liste IOT uređaja
+     * objektima
+     *
+     * @param result jsonData objekt prikazan u varijabli tipa string
+     */
+    public synchronized static String popuniListuUredaja(String result) {
+        IOT iotKlijenta = null;
+        try {
+            iotKlijenta = parsirajJson(result);
+        } catch (JsonSyntaxException ex) {
+            return "ERROR 21; Sadržaj IOT datoteke nije valjan";
+        }
+
+        if (iotKlijenta != null) {
+            if (!ServerSustava.uredajiIOT.isEmpty()) {
+                for (IOT iotServera : ServerSustava.uredajiIOT) {
+                    if (iotServera.dohvatiId() == iotKlijenta.dohvatiId()) { //pronađi iotuređaj prema id-u
+                        iotServera.dodajAtribute(iotKlijenta.dohvatiAtribute());
+                        return "OK 21;";
+                    }
+                }
+                ServerSustava.uredajiIOT.add(iotKlijenta);
+                return "OK 20";
+            }
+            else {
+                ServerSustava.uredajiIOT.add(iotKlijenta);
+                return "OK 20";
+            }
+        }
+        return "ERROR 21; Sadržaj IOT datoteke nije valjan";
+
+    }
+    
+    /**
+     * Dobiveni json string (JsonObject) parsira se u obliku objekta IOT uređaja
+     * s listom json objekata koji predstavljaju atribute
+     *
+     * @param result string jsona
+     * @return IOT objekt popunjen podacima iz stringa jsona
+     */
+    private static IOT parsirajJson(String result) throws JsonSyntaxException {
+        JsonParser parser = new JsonParser();
+        JsonObject jsonData = parser.parse(result).getAsJsonObject();
+
+        int id = Integer.valueOf(jsonData.get("id").toString());
+        JsonArray atributi = jsonData.get("atributi").getAsJsonArray();
+        IOT zapisKlijenta = new IOT(id, atributi);
+
+        return zapisKlijenta;
     }
 }

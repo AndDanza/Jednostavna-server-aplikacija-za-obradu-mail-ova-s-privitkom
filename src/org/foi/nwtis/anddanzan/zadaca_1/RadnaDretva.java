@@ -253,7 +253,7 @@ class RadnaDretva extends Thread {
                 return spavaj(komanda);
             }
             else {
-                return ServerSustava.popuniListuUredaja(komanda);
+                return IOT.popuniListuUredaja(komanda);
             }
         }
     }
@@ -265,25 +265,22 @@ class RadnaDretva extends Thread {
      * @param datoteka datoteka koju je potrebno učitati (iot/evidencija)
      * @return string vrijednost datoteke + zaglavlje
      */
-    private String deserijalizirajZapisZaSlanje(String datoteka) {
+    private synchronized String deserijalizirajZapisZaSlanje(String datoteka) {
         String deserijaliziranaEvidencija = "";
         String kodZnakova = konf.dajPostavku("skup.kodova.znakova");
         String header = "OK; ZN-KODOVI " + kodZnakova + "; DUZINA ";
 
-        Konfiguracija evidencija;
-        try {
-            evidencija = KonfiguracijaApstraktna.preuzmiKonfiguraciju(konf.dajPostavku(datoteka));
-            Properties prop = evidencija.dajSvePostavke();
+        deserijaliziranaEvidencija += "ukupan.broj.zahtjeva=" + ServerSustava.evidencija.getUkupanBrojZahtjeva() +"\n";
+        deserijaliziranaEvidencija += "broj.uspjesnih.zahtjeva=" + ServerSustava.evidencija.getBrojUspjesnihZahtjeva()+"\n";
+        deserijaliziranaEvidencija += "broj.prekinutih.zahtjeva=" + ServerSustava.evidencija.getBrojPrekinutihZahtjeva()+"\n";
+        deserijaliziranaEvidencija += "broj.nedozvoljenih.zahtjeva=" + ServerSustava.evidencija.getBrojNedozvoljenihZahtjeva()+"\n";
+        deserijaliziranaEvidencija += "broj.obavljenih.serijalizacija=" + ServerSustava.evidencija.getBrojObavljenihSerijalizacija()+"\n";
+        deserijaliziranaEvidencija += "ukupno.vrijeme.rada.radnih.dretvi=" + ServerSustava.evidencija.getUkupnoVrijemeRadaRadnihDretvi()+"\n";
+        deserijaliziranaEvidencija += "broj.neispravnih.zahtjeva=" + ServerSustava.evidencija.getBrojNeispravnihZahtjeva() +"\n";
 
-            Set<Entry<Object, Object>> entries = prop.entrySet();
-            for (Entry<Object, Object> entry : entries) {
-                deserijaliziranaEvidencija += entry.getKey() + " = " + entry.getValue() + "\n";
-            }
-            header += deserijaliziranaEvidencija.getBytes().length + "<CRLF>\n";
-            deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim() + ";";
-        } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
-            Logger.getLogger(RadnaDretva.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        header += deserijaliziranaEvidencija.getBytes().length + "<CRLF>\n";
+        deserijaliziranaEvidencija = header + deserijaliziranaEvidencija.trim() + ";";
+
         return deserijaliziranaEvidencija;
     }
 

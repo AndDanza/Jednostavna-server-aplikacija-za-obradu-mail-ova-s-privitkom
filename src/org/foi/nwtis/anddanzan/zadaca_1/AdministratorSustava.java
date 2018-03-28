@@ -1,9 +1,9 @@
 package org.foi.nwtis.anddanzan.zadaca_1;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -37,7 +37,7 @@ public class AdministratorSustava extends KorisnikSustava {
             Socket socket = new Socket(this.adresa, this.port);
 
             posaljiKomandu(socket, this.komanda);
-            System.out.println("Komanda: "+this.komanda);
+            System.out.println("Komanda: " + this.komanda);
 
             String odgovor = zaprimiOdgovor(socket);
             System.out.println("Odgovor: " + odgovor);
@@ -72,11 +72,16 @@ public class AdministratorSustava extends KorisnikSustava {
                             Logger.getLogger(AdministratorSustava.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
+                    else {
+                        FileWriter file = new FileWriter(datoteka);
+                        file.write(odgovor);
+                        file.flush();
+                        file.close();
+                    }
                 }
             }
 
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println("ERROR 02; Krivi port ili adresa u naredbi");
         }
     }
