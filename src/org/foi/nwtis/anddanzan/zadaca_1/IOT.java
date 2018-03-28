@@ -112,11 +112,11 @@ public class IOT implements Serializable {
                     }
                 }
                 ServerSustava.uredajiIOT.add(iotKlijenta);
-                return "OK 20";
+                return "OK 20;";
             }
             else {
                 ServerSustava.uredajiIOT.add(iotKlijenta);
-                return "OK 20";
+                return "OK 20;";
             }
         }
         return "ERROR 21; Sadržaj IOT datoteke nije valjan";
@@ -130,7 +130,7 @@ public class IOT implements Serializable {
      * @param result string jsona
      * @return IOT objekt popunjen podacima iz stringa jsona
      */
-    private static IOT parsirajJson(String result) throws JsonSyntaxException {
+    public static IOT parsirajJson(String result) throws JsonSyntaxException {
         try {
             Properties prop = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().fromJson(result, Properties.class);
 
