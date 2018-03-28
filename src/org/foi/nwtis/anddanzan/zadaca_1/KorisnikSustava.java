@@ -88,7 +88,7 @@ public class KorisnikSustava {
     protected void posaljiKomandu(Socket socket, String komanda) {
         try {
             OutputStream outputStream = socket.getOutputStream();
-            outputStream.write(this.komanda.getBytes());
+            outputStream.write(komanda.getBytes());
             outputStream.flush();
             socket.shutdownOutput();
         } catch (IOException ex) {

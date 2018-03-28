@@ -58,9 +58,7 @@ public class ServerSustava {
 
         } catch (NemaKonfiguracije | NeispravnaKonfiguracija ex) {
             System.out.println(ex.getMessage());
-        } catch (IOException ex) {
-            Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ServerSustava.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
