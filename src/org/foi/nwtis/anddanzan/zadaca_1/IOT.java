@@ -101,7 +101,7 @@ public class IOT implements Serializable {
      * @param result jsonData objekt prikazan u varijabli tipa string
      */
     public synchronized static String popuniAtribute(String result) {
-        IOT iotKlijenta = iotKlijenta = parsirajJson(result);
+        IOT iotKlijenta = parsirajJson(result);
 
         if (iotKlijenta != null) {
             if (!ServerSustava.uredajiIOT.isEmpty()) {
